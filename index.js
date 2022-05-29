@@ -78,11 +78,7 @@ function onRoomStart() {
   return {
     state: {
       status: Status.PreGame,
-      board: [
-        [null, null, null],
-        [null, null, null],
-        [null, null, null],
-      ],
+      board: Array(7).fill(Array(7).fill(null)),
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
   };
