@@ -55,9 +55,12 @@ function Board({ board, ships }) {
                 ? (
                   <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
                     <Ship
+                      board={board}
                       boxSize={BOX_SIZE}
                       length={ships[cell]}
                       vertical={getIsVertical(rowNum, colNum)}
+                      rowOffset={rowNum}
+                      colOffset={colNum}
                     />
                   </Item>
                 )
