@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { styled } from '@mui/material/styles';
@@ -20,6 +21,22 @@ const Item = styled(Paper)(() => ({
 function Board({ board, ships }) {
   const boardSize = board.length;
 
+  const isStartPosition = (x, y) => {
+    const shipType = board[x][y];
+
+    return (
+      shipType != null
+      && (
+        (x === 0 || y === 0)
+        || (board[x - 1][y] !== shipType && board[x][y - 1] !== shipType)
+      ));
+  };
+
+  const getIsVertical = (x, y) => {
+    if (x === board.length - 1) return false;
+    return board[x + 1][y] === board[x][y];
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       <Grid
@@ -31,18 +48,18 @@ function Board({ board, ships }) {
           backgroundColor: '#18293b',
         }}
       >
-        {Object.keys(ships).map((ship) => (
-          <Ship
-            length={ships[ship]}
-            boxSize={BOX_SIZE}
-          />
-        ))}
         {board.map((row, rowNum) => (
-          row.map((col, colNum) => (
-            <Grid item key={(row, col)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
-              {colNum === 0
+          row.map((cell, colNum) => (
+            <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+              {isStartPosition(rowNum, colNum)
                 ? (
-                  <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }} />
+                  <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+                    <Ship
+                      boxSize={BOX_SIZE}
+                      length={ships[cell]}
+                      vertical={getIsVertical(rowNum, colNum)}
+                    />
+                  </Item>
                 )
                 : <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }} />}
             </Grid>

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import Draggable from 'react-draggable';
 // eslint-disable-next-line react/prop-types
-function Ship({ length, boxSize }) {
-  const [rotated, setRotated] = useState(false);
+function Ship({ length, boxSize, vertical }) {
+  const [rotated, setRotated] = useState(vertical);
   // const [dragging, setDragging] = useState(false);
 
   const onDrag = () => {
@@ -16,7 +16,7 @@ function Ship({ length, boxSize }) {
   const shortSide = `${shipSize}px`;
 
   return (
-    <Draggable grid={[boxSize, boxSize]} bounds="parent" style={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}>
+    <Draggable grid={[boxSize, boxSize]} style={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}>
       <Box
         sx={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}
         onDrag={onDrag}
