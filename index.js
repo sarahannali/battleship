@@ -119,7 +119,7 @@ function onRoomStart() {
         currentDirection = getNextDirection(currentDirection);
 
         if (currentDirection === startDirection) {
-          startPosition = getRandomValue(directions.length);
+          startPosition = [getRandomValue(board.length), getRandomValue(board[0].length)];
         }
 
         validStart = isValidStartPosition(startPosition, directions[currentDirection]);
