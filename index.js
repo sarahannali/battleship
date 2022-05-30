@@ -75,10 +75,75 @@ function isEndGame(board, plrs) {
  * @returns {BoardGameResult}
  */
 function onRoomStart() {
+  const board = Array.from({ length: 10 }, () => Array(10).fill(null));
+  const ships = {
+    Carrier: 5,
+    Battleship: 4,
+    Cruiser: 3,
+    Submarine: 3,
+    Destroyer: 2,
+  };
+
+  const getRandomValue = (max) => Math.floor(Math.random() * max);
+
+  function getRandomGameState() {
+    const setBoatPosition = (ship) => {
+      let startPosition = [getRandomValue(board.length), getRandomValue(board[0].length)];
+      const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+      const startDirection = getRandomValue(directions.length);
+      const shipLength = ships[ship];
+
+      const getNextDirection = (direction) => (direction + 1) % directions.length;
+
+      const isValidStartPosition = (position, direction) => {
+        const [x, y] = direction;
+
+        for (let i = 0; i < shipLength; i += 1) {
+          const nextX = position[0] + (i * x);
+          const nextY = position[1] + (i * y);
+          if (!(
+            nextX >= 0 && nextX < board.length
+            && nextY >= 0 && nextY < board[0].length
+              && board[nextX][nextY] === null)) {
+            return false;
+          }
+        }
+
+        return true;
+      };
+
+      let validStart = isValidStartPosition(startPosition, directions[startDirection]);
+      let currentDirection = startDirection;
+
+      while (!validStart) {
+        currentDirection = getNextDirection(currentDirection);
+
+        if (currentDirection === startDirection) {
+          startPosition = getRandomValue(directions.length);
+        }
+
+        validStart = isValidStartPosition(startPosition, directions[currentDirection]);
+      }
+
+      const [x, y] = directions[currentDirection];
+      for (let i = 0; i < shipLength; i += 1) {
+        const nextX = startPosition[0] + (i * x);
+        const nextY = startPosition[1] + (i * y);
+
+        board[nextX][nextY] = ship;
+      }
+    };
+
+    Object.keys(ships).forEach((ship) => {
+      setBoatPosition(ship);
+    });
+  }
+
+  getRandomGameState();
   return {
     state: {
       status: Status.PreGame,
-      board: Array(7).fill(Array(7).fill(null)),
+      board,
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
   };

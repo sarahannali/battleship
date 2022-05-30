@@ -45,13 +45,21 @@ function App() {
       winner,
       plrToMoveIndex,
     } = {
-      board: Array(7).fill(Array(7).fill(null)),
+      board: Array(10).fill(Array(10).fill(null)),
     },
   } = boardGame;
   const { players = [], finished } = boardGame;
   const generalStatus = getStatusMsg({
     status, winner, finished, plrToMove: status === 'inGame' ? players[plrToMoveIndex] : null,
   });
+
+  const ships = {
+    Carrier: 5,
+    Battleship: 4,
+    Cruiser: 3,
+    Submarine: 3,
+    Destroyer: 2,
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -61,6 +69,7 @@ function App() {
         <Stack margin={2} spacing={1} direction="row" justifyContent="center">
           <Board
             board={board}
+            ships={ships}
           />
           <Paper>
             <Stack padding={1} sx={{ minWidth: '100px' }}>

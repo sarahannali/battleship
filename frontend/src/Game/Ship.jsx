@@ -2,20 +2,25 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import Draggable from 'react-draggable';
 // eslint-disable-next-line react/prop-types
-function Ship({ length, boxSize, vertical }) {
-  const [rotated, setRotated] = useState(vertical);
+function Ship({ length, boxSize }) {
+  const [rotated, setRotated] = useState(false);
+  // const [dragging, setDragging] = useState(false);
 
-  const BOX_SIZE = boxSize * 0.8;
+  const onDrag = () => {
+
+  };
+  const shipSize = boxSize * 0.8;
   const offset = boxSize * 0.2;
 
-  const longSide = `${(BOX_SIZE * length + offset * (length - 1))}px`;
-  const shortSide = `${BOX_SIZE}px`;
+  const longSide = `${(shipSize * length + offset * (length - 1))}px`;
+  const shortSide = `${shipSize}px`;
 
   return (
-    <Draggable grid={[70, 70]}>
+    <Draggable grid={[boxSize, boxSize]} bounds="parent" style={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}>
       <Box
-        sx={{ height: `${BOX_SIZE}px`, width: `${BOX_SIZE}px`, padding: '7px' }}
-        onClick={() => { setRotated(!rotated); }}
+        sx={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}
+        onDrag={onDrag}
+        onDoubleClick={() => setRotated(!rotated)}
       >
         <Box sx={{
           height: rotated ? longSide : shortSide,
