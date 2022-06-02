@@ -18,7 +18,7 @@ const Item = styled(Paper)(() => ({
   backgroundColor: 'transparent',
 }));
 
-function Board({ board, ships }) {
+function Board({ board, ships, setBoard }) {
   const boardSize = board.length;
 
   const isStartPosition = (x, y) => {
@@ -27,8 +27,8 @@ function Board({ board, ships }) {
     return (
       shipType != null
       && (
-        (x === 0 || y === 0)
-        || (board[x - 1][y] !== shipType && board[x][y - 1] !== shipType)
+        (x === 0 || board[x - 1][y] !== shipType)
+        && (y === 0 || board[x][y - 1] !== shipType)
       ));
   };
 
@@ -36,6 +36,20 @@ function Board({ board, ships }) {
     if (x === board.length - 1) return false;
     return board[x + 1][y] === board[x][y];
   };
+
+  const updateBoard = (ship, newX, newY, vertical) => {
+    const newBoard = board.map((row) => row.map((cell) => {
+      if (cell === ship) {
+        return null;
+      } return cell;
+    }));
+
+    console.log('NEW BOARD: ', newBoard);
+    console.log(newX, newY, vertical);
+    setBoard(newBoard);
+  };
+
+  console.log('BOARD: ', board);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -55,12 +69,14 @@ function Board({ board, ships }) {
                 ? (
                   <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
                     <Ship
+                      ships={ships}
+                      ship={cell}
                       board={board}
                       boxSize={BOX_SIZE}
-                      length={ships[cell]}
                       vertical={getIsVertical(rowNum, colNum)}
                       rowOffset={rowNum}
                       colOffset={colNum}
+                      updateBoard={updateBoard}
                     />
                   </Item>
                 )

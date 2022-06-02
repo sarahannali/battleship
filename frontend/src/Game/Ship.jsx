@@ -8,22 +8,31 @@ const VALID_COLOR = '#08F7FE';
 const INVALID_COLOR = '#E92746';
 
 function Ship({
-  board, length, boxSize, vertical, rowOffset, colOffset,
+  ships, ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
 }) {
+  console.log('CREATING SHIP: ', ship);
   const [rotated, setRotated] = useState(vertical);
   const [valid, setValid] = useState(
-    isValidShipPlacement(board, rowOffset, colOffset, length, vertical),
+    isValidShipPlacement(board, rowOffset, colOffset, ships[ship], vertical),
   );
+  const [dragging, setDragging] = useState(false);
 
-  const onDrag = () => {
-    setValid(true);
-  };
+  const length = ships[ship];
 
-  const onStop = (e, data) => {
+  const onDrag = (e, data) => {
+    setDragging(true);
     const newRow = rowOffset + (data.y / boxSize);
     const newCol = colOffset + (data.x / boxSize);
 
     setValid(isValidShipPlacement(board, newRow, newCol, length, vertical));
+  };
+
+  const onStop = (e, data) => {
+    setDragging(false);
+    const newRow = rowOffset + (data.y / boxSize);
+    const newCol = colOffset + (data.x / boxSize);
+
+    updateBoard(ship, newRow, newCol, vertical);
   };
 
   const shipSize = boxSize * 0.8;
@@ -39,7 +48,9 @@ function Ship({
       onStop={onStop}
     >
       <Box
-        sx={{ height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px' }}
+        sx={{
+          height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px', cursor: dragging ? 'grabbing' : 'grab',
+        }}
         onDoubleClick={() => setRotated(!rotated)}
       >
         <Box sx={{

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ThemeProvider, Typography, Stack, List, ListItem, ListItemText, Paper, Snackbar, Alert, Fade,
+  ThemeProvider,
+  Typography, Stack, List, ListItem, ListItemText, Paper, Snackbar, Alert, Fade, Button,
 } from '@mui/material';
 
 import client, { events } from '@urturn/client';
@@ -68,7 +69,8 @@ function App() {
         <Typography textAlign="center" color="text.primary">{generalStatus}</Typography>
         <Stack margin={2} spacing={1} direction="row" justifyContent="center">
           <Board
-            board={board}
+            board={[...board]}
+            setBoard={(newBoard) => setBoardGame({ ...boardGame, board: newBoard })}
             ships={ships}
           />
           <Paper>
@@ -84,6 +86,13 @@ function App() {
             </Stack>
           </Paper>
         </Stack>
+        <Button
+          sx={{ width: '200px', mt: 10 }}
+          variant="outlined"
+        >
+          Start Battle
+
+        </Button>
       </Stack>
       <Snackbar
         autoHideDuration={6000}
