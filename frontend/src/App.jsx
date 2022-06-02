@@ -79,7 +79,7 @@ function App() {
               <List dense disablePadding padding={0}>
                 {players.map((player, ind) => (
                   <ListItem dense disablePadding key={player}>
-                    <ListItemText primary={`${ind + 1}: ${player}`} />
+                    <ListItemText primary={`${ind + 1}: ${player.username}`} />
                   </ListItem>
                 ))}
               </List>
