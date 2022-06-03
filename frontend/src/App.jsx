@@ -69,8 +69,7 @@ function App() {
         <Typography textAlign="center" color="text.primary">{generalStatus}</Typography>
         <Stack margin={2} spacing={1} direction="row" justifyContent="center">
           <Board
-            board={[...board]}
-            setBoard={(newBoard) => setBoardGame({ ...boardGame, board: newBoard })}
+            board={board}
             ships={ships}
           />
           <Paper>

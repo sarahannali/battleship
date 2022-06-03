@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
   Grid, Paper,
@@ -18,38 +18,47 @@ const Item = styled(Paper)(() => ({
   backgroundColor: 'transparent',
 }));
 
-function Board({ board, ships, setBoard }) {
-  const boardSize = board.length;
+function Board({ board, ships }) {
+  const [localBoard, setLocalBoard] = useState(board);
+  const boardSize = localBoard.length;
+
+  useEffect(() => {
+    setLocalBoard(board);
+  }, [board]);
 
   const isStartPosition = (x, y) => {
-    const shipType = board[x][y];
+    const shipType = localBoard[x][y];
 
     return (
       shipType != null
       && (
-        (x === 0 || board[x - 1][y] !== shipType)
-        && (y === 0 || board[x][y - 1] !== shipType)
+        (x === 0 || localBoard[x - 1][y] !== shipType)
+        && (y === 0 || localBoard[x][y - 1] !== shipType)
       ));
   };
 
   const getIsVertical = (x, y) => {
-    if (x === board.length - 1) return false;
-    return board[x + 1][y] === board[x][y];
+    if (x === localBoard.length - 1) return false;
+    return localBoard[x + 1][y] === localBoard[x][y];
   };
 
-  const updateBoard = (ship, newX, newY, vertical) => {
-    const newBoard = board.map((row) => row.map((cell) => {
+  const updateBoard = (ship, startX, startY, vertical) => {
+    const endX = vertical ? startX + ships[ship] - 1 : startX;
+    const endY = vertical ? startY : startY + ships[ship] - 1;
+
+    const newBoard = localBoard.map((row, i) => row.map((cell, j) => {
+      if (startX <= i && i <= endX && startY <= j && j <= endY) {
+        return ship;
+      }
       if (cell === ship) {
         return null;
-      } return cell;
+      }
+
+      return cell;
     }));
 
-    console.log('NEW BOARD: ', newBoard);
-    console.log(newX, newY, vertical);
-    setBoard(newBoard);
+    setLocalBoard(newBoard);
   };
-
-  console.log('BOARD: ', board);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -62,7 +71,7 @@ function Board({ board, ships, setBoard }) {
           backgroundColor: '#18293b',
         }}
       >
-        {board.map((row, rowNum) => (
+        {localBoard.map((row, rowNum) => (
           row.map((cell, colNum) => (
             <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
               {isStartPosition(rowNum, colNum)
@@ -71,7 +80,7 @@ function Board({ board, ships, setBoard }) {
                     <Ship
                       ships={ships}
                       ship={cell}
-                      board={board}
+                      board={localBoard}
                       boxSize={BOX_SIZE}
                       vertical={getIsVertical(rowNum, colNum)}
                       rowOffset={rowNum}
