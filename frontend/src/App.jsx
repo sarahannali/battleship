@@ -7,6 +7,7 @@ import {
 import client, { events } from '@urturn/client';
 import theme from './theme';
 import Board from './Game/Board';
+import { MoveTypes } from './Helpers/Types';
 
 const getStatusMsg = ({
   status, winner, finished, plrToMove,
@@ -24,13 +25,21 @@ const getStatusMsg = ({
   return 'Error: You should never see this. Contact developers!';
 };
 
+const EMPTY_BOARD = Array(10).fill(Array(10).fill(null));
+
 function App() {
   const [boardGame, setBoardGame] = useState(client.getBoardGame() || {});
+  const [localPlayer, setLocalPlayer] = useState(null);
 
   useEffect(() => {
     const onStateChanged = (newBoardGame) => {
       setBoardGame(newBoardGame);
     };
+    const getLocalPlayer = async () => {
+      setLocalPlayer(await client.getLocalPlayer());
+    };
+
+    getLocalPlayer();
     events.on('stateChanged', onStateChanged);
     return () => {
       events.off('stateChanged', onStateChanged);
@@ -46,7 +55,7 @@ function App() {
       winner,
       plrToMoveIndex,
     } = {
-      board: Array(10).fill(Array(10).fill(null)),
+      board: null,
     },
   } = boardGame;
   const { players = [], finished } = boardGame;
@@ -54,12 +63,13 @@ function App() {
     status, winner, finished, plrToMove: status === 'inGame' ? players[plrToMoveIndex] : null,
   });
 
-  const ships = {
-    Carrier: 5,
-    Battleship: 4,
-    Cruiser: 3,
-    Submarine: 3,
-    Destroyer: 2,
+  const startBattle = async (event) => {
+    event.preventDefault();
+    const move = { moveType: MoveTypes.InitializeBoard, boardGame };
+    await client.makeMove(move);
+    // if (error) {
+    //   setRecentErrorMsg(error.message);
+    // }
   };
 
   return (
@@ -69,8 +79,7 @@ function App() {
         <Typography textAlign="center" color="text.primary">{generalStatus}</Typography>
         <Stack margin={2} spacing={1} direction="row" justifyContent="center">
           <Board
-            board={board}
-            ships={ships}
+            board={localPlayer && board ? board[localPlayer.id] : EMPTY_BOARD}
           />
           <Paper>
             <Stack padding={1} sx={{ minWidth: '100px' }}>
@@ -88,9 +97,9 @@ function App() {
         <Button
           sx={{ width: '200px', mt: 10 }}
           variant="outlined"
+          onClick={startBattle}
         >
           Start Battle
-
         </Button>
       </Stack>
       <Snackbar

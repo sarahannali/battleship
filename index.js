@@ -1,3 +1,5 @@
+const { getRandomGameState } = require('./helpers');
+
 // TicTacToe Example
 const Status = Object.freeze({
   PreGame: 'preGame',
@@ -5,48 +7,41 @@ const Status = Object.freeze({
   EndGame: 'endGame',
 });
 
-function getPlrMark(plr, plrs) {
-  if (plr === plrs[0]) {
-    return 'X';
-  }
-  return 'O';
-}
+// function getPlrFromMark(mark, plrs) {
+//   return mark === 'X' ? plrs[0] : plrs[1];
+// }
 
-function getPlrFromMark(mark, plrs) {
-  return mark === 'X' ? plrs[0] : plrs[1];
-}
+// function isWinningSequence(arr) {
+//   return arr[0] != null && arr[0] === arr[1] && arr[1] === arr[2];
+// }
 
-function isWinningSequence(arr) {
-  return arr[0] != null && arr[0] === arr[1] && arr[1] === arr[2];
-}
+// function isEndGame(board, plrs) {
+//   // check if there is a winner
+//   for (let i = 0; i < board.length; i += 1) {
+//     const row = board[i];
+//     const col = [board[0][i], board[1][i], board[2][i]];
 
-function isEndGame(board, plrs) {
-  // check if there is a winner
-  for (let i = 0; i < board.length; i += 1) {
-    const row = board[i];
-    const col = [board[0][i], board[1][i], board[2][i]];
+//     if (isWinningSequence(row)) {
+//       return [true, getPlrFromMark(row[0], plrs)];
+//     } if (isWinningSequence(col)) {
+//       return [true, getPlrFromMark(col[0], plrs)];
+//     }
+//   }
 
-    if (isWinningSequence(row)) {
-      return [true, getPlrFromMark(row[0], plrs)];
-    } if (isWinningSequence(col)) {
-      return [true, getPlrFromMark(col[0], plrs)];
-    }
-  }
+//   const d1 = [board[0][0], board[1][1], board[2][2]];
+//   const d2 = [board[0][2], board[1][1], board[2][0]];
+//   if (isWinningSequence(d1)) {
+//     return [true, getPlrFromMark(d1[0], plrs)];
+//   } if (isWinningSequence(d2)) {
+//     return [true, getPlrFromMark(d2[0], plrs)];
+//   }
 
-  const d1 = [board[0][0], board[1][1], board[2][2]];
-  const d2 = [board[0][2], board[1][1], board[2][0]];
-  if (isWinningSequence(d1)) {
-    return [true, getPlrFromMark(d1[0], plrs)];
-  } if (isWinningSequence(d2)) {
-    return [true, getPlrFromMark(d2[0], plrs)];
-  }
-
-  // check for tie
-  if (board.some((row) => row.some((mark) => mark === null))) {
-    return [false, null];
-  }
-  return [true, null];
-}
+//   // check for tie
+//   if (board.some((row) => row.some((mark) => mark === null))) {
+//     return [false, null];
+//   }
+//   return [true, null];
+// }
 
 /**
  * Generic board game types
@@ -75,71 +70,8 @@ function isEndGame(board, plrs) {
  * @returns {BoardGameResult}
  */
 function onRoomStart() {
-  const board = Array.from({ length: 10 }, () => Array(10).fill(null));
-  const ships = {
-    Carrier: 5,
-    Battleship: 4,
-    Cruiser: 3,
-    Submarine: 3,
-    Destroyer: 2,
-  };
+  const board = {};
 
-  const getRandomValue = (max) => Math.floor(Math.random() * max);
-
-  function getRandomGameState() {
-    const setBoatPosition = (ship) => {
-      let startPosition = [getRandomValue(board.length), getRandomValue(board[0].length)];
-      const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
-      const startDirection = getRandomValue(directions.length);
-      const shipLength = ships[ship];
-
-      const getNextDirection = (direction) => (direction + 1) % directions.length;
-
-      const isValidStartPosition = (position, direction) => {
-        const [x, y] = direction;
-
-        for (let i = 0; i < shipLength; i += 1) {
-          const nextX = position[0] + (i * x);
-          const nextY = position[1] + (i * y);
-          if (!(
-            nextX >= 0 && nextX < board.length
-            && nextY >= 0 && nextY < board[0].length
-              && board[nextX][nextY] === null)) {
-            return false;
-          }
-        }
-
-        return true;
-      };
-
-      let validStart = isValidStartPosition(startPosition, directions[startDirection]);
-      let currentDirection = startDirection;
-
-      while (!validStart) {
-        currentDirection = getNextDirection(currentDirection);
-
-        if (currentDirection === startDirection) {
-          startPosition = [getRandomValue(board.length), getRandomValue(board[0].length)];
-        }
-
-        validStart = isValidStartPosition(startPosition, directions[currentDirection]);
-      }
-
-      const [x, y] = directions[currentDirection];
-      for (let i = 0; i < shipLength; i += 1) {
-        const nextX = startPosition[0] + (i * x);
-        const nextY = startPosition[1] + (i * y);
-
-        board[nextX][nextY] = ship;
-      }
-    };
-
-    Object.keys(ships).forEach((ship) => {
-      setBoatPosition(ship);
-    });
-  }
-
-  getRandomGameState();
   return {
     state: {
       status: Status.PreGame,
@@ -164,10 +96,9 @@ function onPlayerJoin(plr, boardGame) {
     throw new Error("game has already started, can't join the game!");
   }
 
-  // TRANSFORMATIONS
-  // determine if we should start the game
+  state.board[plr.id] = getRandomGameState();
+
   if (players.length === 2) {
-    // start game
     state.status = Status.InGame;
     state.plrToMoveIndex = 0;
     return {
@@ -175,6 +106,7 @@ function onPlayerJoin(plr, boardGame) {
       joinable: false,
     };
   }
+
   return {
     state,
     joinable: true,
@@ -205,19 +137,19 @@ function onPlayerMove(plr, move, boardGame) {
     throw new Error(`Invalid move, someone already marked here: ${x},${y}`);
   }
 
-  const plrMark = getPlrMark(plr, players);
-  board[x][y] = plrMark;
+  // const plrMark = ge(plr, players, board);
+  // board[x][y] = plrMark;
 
-  // Check if game is over
-  const [isEnd, winner] = isEndGame(board, players);
-  if (isEnd) {
-    state.status = Status.EndGame;
-    state.winner = winner;
-    return { state, finished: true };
-  }
+  // // Check if game is over
+  // const [isEnd, winner] = isEndGame(board, players);
+  // if (isEnd) {
+  //   state.status = Status.EndGame;
+  //   state.winner = winner;
+  //   return { state, finished: true };
+  // }
 
-  state.plrToMoveIndex = plrToMoveIndex === 0 ? 1 : 0;
-  return { state };
+  // state.plrToMoveIndex = plrToMoveIndex === 0 ? 1 : 0;
+  // return { state };
 }
 
 /**

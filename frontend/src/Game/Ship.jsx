@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
+import { ships } from '../Helpers/Types';
 
 const VALID_COLOR = '#08F7FE';
 const INVALID_COLOR = '#E92746';
 
 function Ship({
-  ships, ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
+  ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
 }) {
   const [rotated, setRotated] = useState(vertical);
   const [valid, setValid] = useState(
@@ -27,14 +28,11 @@ function Ship({
   };
 
   const rotateShip = () => {
-    console.log('OFFSETS: ', rowOffset, colOffset);
-    console.log('PASSING: ', ship, rowOffset, colOffset, !rotated);
     updateBoard(ship, rowOffset, colOffset, !rotated);
     setRotated(!rotated);
   };
 
   const onStop = (e, data) => {
-    console.log('ON STOP');
     if (dragging) {
       const newRow = rowOffset + (data.y / boxSize);
       const newCol = colOffset + (data.x / boxSize);

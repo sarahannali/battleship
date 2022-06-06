@@ -6,6 +6,7 @@ import {
   Grid, Paper,
 } from '@mui/material';
 import Ship from './Ship';
+import { ships } from '../Helpers/Types';
 
 const BOX_SIZE = 50;
 
@@ -18,13 +19,14 @@ const Item = styled(Paper)(() => ({
   backgroundColor: 'transparent',
 }));
 
-function Board({ board, ships }) {
+function Board({ board }) {
   const [localBoard, setLocalBoard] = useState(board);
-  const boardSize = localBoard.length;
 
   useEffect(() => {
     setLocalBoard(board);
   }, [board]);
+
+  const boardSize = localBoard.length;
 
   const isStartPosition = (x, y) => {
     const shipType = localBoard[x][y];
