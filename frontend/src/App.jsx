@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   ThemeProvider,
-  Typography, Stack, List, ListItem, ListItemText, Paper, Snackbar, Alert, Fade, Button,
+  Typography, Stack, List, ListItem, ListItemText, Paper, Snackbar, Alert, Fade,
 } from '@mui/material';
 
 import client, { events } from '@urturn/client';
 import theme from './theme';
 import Board from './Game/Board';
-import { MoveTypes } from './Helpers/Types';
 
 const getStatusMsg = ({
   status, winner, finished, plrToMove,
@@ -30,6 +29,8 @@ const EMPTY_BOARD = Array(10).fill(Array(10).fill(null));
 function App() {
   const [boardGame, setBoardGame] = useState(client.getBoardGame() || {});
   const [localPlayer, setLocalPlayer] = useState(null);
+
+  console.log('BOARD GAME: ', boardGame);
 
   useEffect(() => {
     const onStateChanged = (newBoardGame) => {
@@ -63,15 +64,6 @@ function App() {
     status, winner, finished, plrToMove: status === 'inGame' ? players[plrToMoveIndex] : null,
   });
 
-  const startBattle = async (event) => {
-    event.preventDefault();
-    const move = { moveType: MoveTypes.InitializeBoard, boardGame };
-    await client.makeMove(move);
-    // if (error) {
-    //   setRecentErrorMsg(error.message);
-    // }
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <Stack spacing={1} sx={{ justifyContent: 'center' }}>
@@ -94,13 +86,6 @@ function App() {
             </Stack>
           </Paper>
         </Stack>
-        <Button
-          sx={{ width: '200px', mt: 10 }}
-          variant="outlined"
-          onClick={startBattle}
-        >
-          Start Battle
-        </Button>
       </Stack>
       <Snackbar
         autoHideDuration={6000}

@@ -7,6 +7,11 @@ const Status = Object.freeze({
   EndGame: 'endGame',
 });
 
+const MoveTypes = Object.freeze({
+  InitializeBoard: 0,
+  MakeMove: 1,
+});
+
 // function getPlrFromMark(mark, plrs) {
 //   return mark === 'X' ? plrs[0] : plrs[1];
 // }
@@ -121,35 +126,20 @@ function onPlayerJoin(plr, boardGame) {
  * @returns {BoardGameResult}
  */
 function onPlayerMove(plr, move, boardGame) {
-  const { state, players } = boardGame;
-  const { board, plrToMoveIndex } = state;
+  const { state } = boardGame;
+  const { board } = state;
 
-  // VALIDATIONS
-  // boardgame must be in the game
-  const { x, y } = move;
+  const { moveType, playerBoard } = move;
   if (state.status !== Status.InGame) {
     throw new Error("game is not in progress, can't make move!");
   }
-  if (players[plrToMoveIndex] !== plr) {
-    throw new Error(`Its not this player's turn: ${plr}`);
-  }
-  if (board[x][y] !== null) {
-    throw new Error(`Invalid move, someone already marked here: ${x},${y}`);
+
+  if (moveType === MoveTypes.InitializeBoard) {
+    board[plr.id] = playerBoard;
   }
 
-  // const plrMark = ge(plr, players, board);
-  // board[x][y] = plrMark;
-
-  // // Check if game is over
-  // const [isEnd, winner] = isEndGame(board, players);
-  // if (isEnd) {
-  //   state.status = Status.EndGame;
-  //   state.winner = winner;
-  //   return { state, finished: true };
-  // }
-
-  // state.plrToMoveIndex = plrToMoveIndex === 0 ? 1 : 0;
-  // return { state };
+  state.board = board;
+  return { state };
 }
 
 /**

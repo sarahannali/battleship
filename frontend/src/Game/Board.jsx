@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
+  Button,
   Grid, Paper,
 } from '@mui/material';
+import client from '@urturn/client';
 import Ship from './Ship';
-import { ships } from '../Helpers/Types';
+import { MoveTypes, ships } from '../Helpers/Types';
 
 const BOX_SIZE = 50;
 
@@ -62,6 +64,15 @@ function Board({ board }) {
     setLocalBoard(newBoard);
   };
 
+  const startBattle = async (event) => {
+    event.preventDefault();
+    const move = { moveType: MoveTypes.InitializeBoard, playerBoard: localBoard };
+    await client.makeMove(move);
+    // if (error) {
+    //   setRecentErrorMsg(error.message);
+    // }
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       <Grid
@@ -96,6 +107,13 @@ function Board({ board }) {
           ))
         ))}
       </Grid>
+      <Button
+        sx={{ width: '200px', mt: 10 }}
+        variant="outlined"
+        onClick={startBattle}
+      >
+        Start Battle
+      </Button>
     </div>
   );
 }
