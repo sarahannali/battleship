@@ -8,15 +8,21 @@ import {
 } from '@mui/material';
 import client from '@urturn/client';
 import Ship from './Ship';
-import { AttackTypes, MoveTypes, ships } from '../Helpers/Types';
-import useGameStatus from '../Hooks/useGameStatus';
+import {
+  AttackTypes, MoveTypes, ships, Status,
+} from '../Helpers/Types';
+import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
+import { usePlayerContext } from '../Contexts/PlayerContext';
+import { EMPTY_BOARD } from '../Helpers/Utils';
 
 function Board({
-  board, mini, minify, opponent, attackBoard,
+  mini, minify, opponent,
 }) {
-  const [gameStarted, setGameStarted] = useGameStatus();
-  const [localBoard, setLocalBoard] = useState(board);
+  const { board, attackBoard, status } = useGameContext();
+  const { player } = usePlayerContext();
+
+  const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
 
   const BOX_SIZE = mini ? 10 : 50;
 
@@ -30,10 +36,12 @@ function Board({
   }));
 
   useEffect(() => {
-    setLocalBoard(board);
-  }, [board]);
+    if (player && board) {
+      setLocalBoard(board[player.id]);
+    }
+  }, [player, board]);
 
-  const boardSize = localBoard.length;
+  const boardSize = localBoard && localBoard.length;
 
   const isStartPosition = (x, y) => {
     const shipType = localBoard[x][y];
@@ -78,7 +86,6 @@ function Board({
       console.log('ERROR: ', error);
     } else {
       minify(true);
-      setGameStarted(true);
     }
   };
 
@@ -126,7 +133,7 @@ function Board({
           ))
         ))}
       </Grid>
-      { !gameStarted && !mini
+      { status === Status.PreGame && !mini
           && (
           <Button
             sx={{ width: '200px', mt: 10 }}
@@ -139,5 +146,9 @@ function Board({
     </div>
   );
 }
+
+Board.defaultProps = {
+  opponent: false,
+};
 
 export default Board;

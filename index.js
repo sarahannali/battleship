@@ -91,7 +91,7 @@ function onRoomStart() {
     state: {
       status: Status.PreGame,
       board: {},
-      attacks: {},
+      attackBoard: {},
       hitCounts: {},
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
@@ -114,7 +114,7 @@ function onPlayerJoin(plr, boardGame) {
   }
 
   state.board[plr.id] = getRandomGameState();
-  state.attacks[plr.id] = getEmptyBoard(AttackTypes.None);
+  state.attackBoard[plr.id] = getEmptyBoard(AttackTypes.None);
   state.hitCounts[plr.id] = getEmptyHitCountsObject();
 
   if (players.length === 2) {
@@ -141,7 +141,7 @@ function onPlayerJoin(plr, boardGame) {
  */
 function onPlayerMove(plr, move, boardGame) {
   const { state, players } = boardGame;
-  const { board, attacks, hitCounts } = state;
+  const { board, attackBoard, hitCounts } = state;
   const otherPlrID = getOtherPlayer(players, plr.id).id;
 
   const { moveType } = move;
@@ -160,9 +160,9 @@ function onPlayerMove(plr, move, boardGame) {
          && y >= 0
          && y < board[plr.id][x].length
           && board[otherPlrID][x][y] === opponentCell
-          && attacks[plr.id][x][y] !== AttackTypes.Sunk
+          && attackBoard[plr.id][x][y] !== AttackTypes.Sunk
       ) {
-        attacks[plr.id][x][y] = AttackTypes.Sunk;
+        attackBoard[plr.id][x][y] = AttackTypes.Sunk;
 
         sinkShip(x - 1, y, opponentCell);
         sinkShip(x + 1, y, opponentCell);
@@ -174,7 +174,7 @@ function onPlayerMove(plr, move, boardGame) {
     const { attack } = move;
     const [x, y] = attack;
 
-    if (attacks[plr.id][x][y] !== AttackTypes.None) {
+    if (attackBoard[plr.id][x][y] !== AttackTypes.None) {
       throw new Error("You've already attacked this cell!");
     }
 
@@ -185,15 +185,15 @@ function onPlayerMove(plr, move, boardGame) {
       if (hitCounts[plr.id][opponentCell] === ships[opponentCell]) {
         sinkShip(x, y, opponentCell);
       } else {
-        attacks[plr.id][x][y] = AttackTypes.Hit;
+        attackBoard[plr.id][x][y] = AttackTypes.Hit;
       }
     } else {
-      attacks[plr.id][x][y] = AttackTypes.Miss;
+      attackBoard[plr.id][x][y] = AttackTypes.Miss;
     }
   }
 
   state.board = board;
-  state.attacks = attacks;
+  state.attackBoard = attackBoard;
   return { state };
 }
 

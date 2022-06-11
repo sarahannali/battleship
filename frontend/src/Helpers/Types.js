@@ -17,3 +17,9 @@ export const AttackTypes = {
   Hit: 2,
   Sunk: 3,
 };
+
+export const Status = {
+  PreGame: 'preGame',
+  InGame: 'inGame',
+  EndGame: 'endGame',
+};
