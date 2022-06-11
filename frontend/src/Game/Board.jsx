@@ -20,7 +20,6 @@ function Board({
   mini, minify, opponent,
 }) {
   const { board, attackBoard, status } = useGameContext();
-  console.log('ATTACK BOARD: ', attackBoard);
   const { player } = usePlayerContext();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);

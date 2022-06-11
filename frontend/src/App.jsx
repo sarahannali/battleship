@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   ThemeProvider,
-  Typography, Stack, List, ListItem, ListItemText, Paper,
+  Typography, Stack, List, ListItem, ListItemText, Paper, Backdrop, CircularProgress,
 } from '@mui/material';
 
 import client, { events } from '@urturn/client';
@@ -9,6 +9,7 @@ import theme from './theme';
 import Board from './Game/Board';
 import { useGameContext } from './Contexts/GameContext';
 import { usePlayerContext } from './Contexts/PlayerContext';
+import { Status } from './Helpers/Types';
 
 // const getStatusMsg = ({
 //   status, winner, finished, plrToMove,
@@ -27,7 +28,7 @@ import { usePlayerContext } from './Contexts/PlayerContext';
 // };
 
 function App() {
-  const { setGame, players } = useGameContext();
+  const { setGame, players, status } = useGameContext();
   const { setPlayer } = usePlayerContext();
   const [showOpponentBoard, setShowOpponentBoard] = useState(false);
 
@@ -48,6 +49,15 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: 100 }}
+        open={showOpponentBoard && status === Status.PreGame}
+      >
+        <Stack margin={2} spacing={1} justifyContent="center" alignItems="center">
+          <CircularProgress color="inherit" />
+          <Typography variant="h5" textAlign="center" color="text.primary">Waiting on other player...</Typography>
+        </Stack>
+      </Backdrop>
       <Stack spacing={1} sx={{ justifyContent: 'center' }}>
         <Typography variant="h3" textAlign="center" color="text.primary">Battleship</Typography>
         {/* <Typography textAlign="center" color="text.primary">{generalStatus}</Typography> */}
