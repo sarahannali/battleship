@@ -15,12 +15,14 @@ import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
 import { EMPTY_BOARD } from '../Helpers/Utils';
+import { useErrorContext } from '../Contexts/ErrorContext';
 
 function Board({
   mini, minify, opponent,
 }) {
   const { board, attackBoard, status } = useGameContext();
   const { player } = usePlayerContext();
+  const { setError } = useErrorContext();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
 
@@ -83,7 +85,7 @@ function Board({
     const { error } = await client.makeMove(move);
 
     if (error) {
-      console.log('ERROR: ', error);
+      setError(error.message);
     } else {
       minify(true);
     }

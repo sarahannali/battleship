@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import {
   ThemeProvider,
-  Typography, Stack, List, ListItem, ListItemText, Paper, Backdrop, CircularProgress,
+  Typography,
+  Stack,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Backdrop,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Fade,
 } from '@mui/material';
-
 import client, { events } from '@urturn/client';
 import theme from './theme';
 import Board from './Game/Board';
 import { useGameContext } from './Contexts/GameContext';
 import { usePlayerContext } from './Contexts/PlayerContext';
 import { Status } from './Helpers/Types';
+import { useErrorContext } from './Contexts/ErrorContext';
 
 // const getStatusMsg = ({
 //   status, winner, finished, plrToMove,
@@ -30,6 +40,7 @@ import { Status } from './Helpers/Types';
 function App() {
   const { setGame, players, status } = useGameContext();
   const { setPlayer } = usePlayerContext();
+  const { error, setError } = useErrorContext();
   const [showOpponentBoard, setShowOpponentBoard] = useState(false);
 
   useEffect(() => {
@@ -85,17 +96,17 @@ function App() {
           </Paper>
         </Stack>
       </Stack>
-      {/* <Snackbar
+      <Snackbar
         autoHideDuration={6000}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={recentErrorMsg !== null}
-        onClose={() => { setRecentErrorMsg(null); }}
+        open={error !== null}
+        onClose={() => { setError(null); }}
         TransationComponent={Fade}
       >
         <Alert severity="error" sx={{ width: '100%' }}>
-          {recentErrorMsg}
+          {error}
         </Alert>
-      </Snackbar> */}
+      </Snackbar>
     </ThemeProvider>
   );
 }

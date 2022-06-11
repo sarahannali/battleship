@@ -94,6 +94,7 @@ function onRoomStart() {
       attackBoard: {},
       hitCounts: {},
       playersReady: 0,
+      plrIDToMove: null,
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
   };
@@ -119,7 +120,8 @@ function onPlayerJoin(plr, boardGame) {
   state.hitCounts[plr.id] = getEmptyHitCountsObject();
 
   if (players.length === 2) {
-    state.plrToMoveIndex = 0;
+    state.plrIDToMove = players[0].id;
+
     return {
       state,
       joinable: false,
@@ -142,7 +144,7 @@ function onPlayerJoin(plr, boardGame) {
 function onPlayerMove(plr, move, boardGame) {
   const { state, players } = boardGame;
   const {
-    board, attackBoard, hitCounts,
+    board, attackBoard, hitCounts, plrIDToMove,
   } = state;
 
   const otherPlrID = getOtherPlayer(players, plr.id).id;
@@ -158,6 +160,12 @@ function onPlayerMove(plr, move, boardGame) {
       state.status = Status.InGame;
     }
   } else if (moveType === MoveTypes.Attack) {
+    if (state.status === Status.PreGame) {
+      throw new Error("Game hasn't started! Waiting on other player.");
+    } else if (plrIDToMove !== plr.id) {
+      throw new Error("It's not your turn! Waiting on other player.");
+    }
+
     const sinkShip = (x, y, opponentCell) => {
       if (
         x >= 0
@@ -195,6 +203,8 @@ function onPlayerMove(plr, move, boardGame) {
     } else {
       attackBoard[plr.id][x][y] = AttackTypes.Miss;
     }
+
+    state.plrIDToMove = otherPlrID;
   }
 
   return { state };
