@@ -6,10 +6,23 @@ const ships = {
   Destroyer: 2,
 };
 
+const getEmptyHitCountsObject = () => {
+  const hitCounts = { ...ships };
+
+  Object.keys(hitCounts).forEach((ship) => {
+    hitCounts[ship] = 0;
+  });
+
+  return hitCounts;
+};
+
+const getEmptyBoard = (defaultValue) => Array
+  .from({ length: 10 }, () => Array(10).fill(defaultValue));
+
 function getRandomGameState() {
   const getRandomValue = (max) => Math.floor(Math.random() * max);
 
-  const playerBoard = Array.from({ length: 10 }, () => Array(10).fill(null));
+  const playerBoard = getEmptyBoard(null);
 
   const setBoatPosition = (ship) => {
     let startPosition = [
@@ -73,5 +86,8 @@ function getRandomGameState() {
 }
 
 module.exports = {
+  ships,
   getRandomGameState,
+  getEmptyBoard,
+  getEmptyHitCountsObject,
 };

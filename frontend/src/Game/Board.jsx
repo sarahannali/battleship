@@ -8,21 +8,26 @@ import {
 } from '@mui/material';
 import client from '@urturn/client';
 import Ship from './Ship';
-import { MoveTypes, ships } from '../Helpers/Types';
+import { AttackTypes, MoveTypes, ships } from '../Helpers/Types';
+import useGameStatus from '../Hooks/useGameStatus';
+import AttackCell from './AttackCell';
 
-const BOX_SIZE = 50;
-
-const Item = styled(Paper)(() => ({
-  height: `${BOX_SIZE}px`,
-  width: `${BOX_SIZE}px`,
-  textAlign: 'center',
-  borderRadius: '0',
-  boxSizing: 'border-box',
-  backgroundColor: 'transparent',
-}));
-
-function Board({ board }) {
+function Board({
+  board, mini, minify, opponent, attackBoard,
+}) {
+  const [gameStarted, setGameStarted] = useGameStatus();
   const [localBoard, setLocalBoard] = useState(board);
+
+  const BOX_SIZE = mini ? 10 : 50;
+
+  const Item = styled(Paper)(() => ({
+    height: `${BOX_SIZE}px`,
+    width: `${BOX_SIZE}px`,
+    textAlign: 'center',
+    borderRadius: '0',
+    boxSizing: 'border-box',
+    backgroundColor: 'transparent',
+  }));
 
   useEffect(() => {
     setLocalBoard(board);
@@ -67,10 +72,14 @@ function Board({ board }) {
   const startBattle = async (event) => {
     event.preventDefault();
     const move = { moveType: MoveTypes.InitializeBoard, playerBoard: localBoard };
-    await client.makeMove(move);
-    // if (error) {
-    //   setRecentErrorMsg(error.message);
-    // }
+    const { error } = await client.makeMove(move);
+
+    if (error) {
+      console.log('ERROR: ', error);
+    } else {
+      minify(true);
+      setGameStarted(true);
+    }
   };
 
   return (
@@ -87,9 +96,19 @@ function Board({ board }) {
         {localBoard.map((row, rowNum) => (
           row.map((cell, colNum) => (
             <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
-              {isStartPosition(rowNum, colNum)
-                ? (
-                  <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+              <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+                { opponent
+                  ? (
+                    <AttackCell
+                      x={rowNum}
+                      y={colNum}
+                      attackState={!mini && attackBoard
+                        ? attackBoard[rowNum][colNum]
+                        : AttackTypes.None}
+                    />
+                  )
+                  : (isStartPosition(rowNum, colNum)
+                    && (
                     <Ship
                       ships={ships}
                       ship={cell}
@@ -100,20 +119,23 @@ function Board({ board }) {
                       colOffset={colNum}
                       updateBoard={updateBoard}
                     />
-                  </Item>
-                )
-                : <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }} />}
+                    )
+                  )}
+              </Item>
             </Grid>
           ))
         ))}
       </Grid>
-      <Button
-        sx={{ width: '200px', mt: 10 }}
-        variant="outlined"
-        onClick={startBattle}
-      >
-        Start Battle
-      </Button>
+      { !gameStarted && !mini
+          && (
+          <Button
+            sx={{ width: '200px', mt: 10 }}
+            variant="outlined"
+            onClick={startBattle}
+          >
+            Start Battle
+          </Button>
+          )}
     </div>
   );
 }

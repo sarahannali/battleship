@@ -29,8 +29,7 @@ const EMPTY_BOARD = Array(10).fill(Array(10).fill(null));
 function App() {
   const [boardGame, setBoardGame] = useState(client.getBoardGame() || {});
   const [localPlayer, setLocalPlayer] = useState(null);
-
-  console.log('BOARD GAME: ', boardGame);
+  const [showOpponentBoard, setShowOpponentBoard] = useState(false);
 
   useEffect(() => {
     const onStateChanged = (newBoardGame) => {
@@ -52,11 +51,13 @@ function App() {
   const {
     state: {
       board,
+      attacks,
       status,
       winner,
       plrToMoveIndex,
     } = {
       board: null,
+      attacks: null,
     },
   } = boardGame;
   const { players = [], finished } = boardGame;
@@ -71,7 +72,17 @@ function App() {
         <Typography textAlign="center" color="text.primary">{generalStatus}</Typography>
         <Stack margin={2} spacing={1} direction="row" justifyContent="center">
           <Board
+            opponent={false}
             board={localPlayer && board ? board[localPlayer.id] : EMPTY_BOARD}
+            mini={showOpponentBoard}
+            minify={setShowOpponentBoard}
+          />
+          <Board
+            opponent
+            board={localPlayer && attacks ? attacks[localPlayer.id] : EMPTY_BOARD}
+            attackBoard={localPlayer && attacks ? attacks[localPlayer.id] : EMPTY_BOARD}
+            mini={!showOpponentBoard}
+            minify={setShowOpponentBoard}
           />
           <Paper>
             <Stack padding={1} sx={{ minWidth: '100px' }}>

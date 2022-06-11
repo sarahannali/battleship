@@ -1,4 +1,6 @@
-const { getRandomGameState } = require('./helpers');
+const {
+  getRandomGameState, getEmptyBoard, getEmptyHitCountsObject, ships,
+} = require('./helpers');
 
 // TicTacToe Example
 const Status = Object.freeze({
@@ -9,8 +11,18 @@ const Status = Object.freeze({
 
 const MoveTypes = Object.freeze({
   InitializeBoard: 0,
-  MakeMove: 1,
+  Attack: 1,
 });
+
+const AttackTypes = Object.freeze({
+  None: 0,
+  Miss: 1,
+  Hit: 2,
+  Sunk: 3,
+});
+
+const getOtherPlayer = (players, currentPlayerID) => players
+  .find((plr) => plr.id !== currentPlayerID);
 
 // function getPlrFromMark(mark, plrs) {
 //   return mark === 'X' ? plrs[0] : plrs[1];
@@ -75,12 +87,12 @@ const MoveTypes = Object.freeze({
  * @returns {BoardGameResult}
  */
 function onRoomStart() {
-  const board = {};
-
   return {
     state: {
       status: Status.PreGame,
-      board,
+      board: {},
+      attacks: {},
+      hitCounts: {},
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
   };
@@ -102,6 +114,8 @@ function onPlayerJoin(plr, boardGame) {
   }
 
   state.board[plr.id] = getRandomGameState();
+  state.attacks[plr.id] = getEmptyBoard(AttackTypes.None);
+  state.hitCounts[plr.id] = getEmptyHitCountsObject();
 
   if (players.length === 2) {
     state.status = Status.InGame;
@@ -126,19 +140,60 @@ function onPlayerJoin(plr, boardGame) {
  * @returns {BoardGameResult}
  */
 function onPlayerMove(plr, move, boardGame) {
-  const { state } = boardGame;
-  const { board } = state;
+  const { state, players } = boardGame;
+  const { board, attacks, hitCounts } = state;
+  const otherPlrID = getOtherPlayer(players, plr.id).id;
 
-  const { moveType, playerBoard } = move;
+  const { moveType } = move;
   if (state.status !== Status.InGame) {
     throw new Error("game is not in progress, can't make move!");
   }
 
   if (moveType === MoveTypes.InitializeBoard) {
+    const { playerBoard } = move;
     board[plr.id] = playerBoard;
+  } else if (moveType === MoveTypes.Attack) {
+    const sinkShip = (x, y, opponentCell) => {
+      if (
+        x >= 0
+        && x < board[plr.id].length
+         && y >= 0
+         && y < board[plr.id][x].length
+          && board[otherPlrID][x][y] === opponentCell
+          && attacks[plr.id][x][y] !== AttackTypes.Sunk
+      ) {
+        attacks[plr.id][x][y] = AttackTypes.Sunk;
+
+        sinkShip(x - 1, y, opponentCell);
+        sinkShip(x + 1, y, opponentCell);
+        sinkShip(x, y - 1, opponentCell);
+        sinkShip(x, y + 1, opponentCell);
+      }
+    };
+
+    const { attack } = move;
+    const [x, y] = attack;
+
+    if (attacks[plr.id][x][y] !== AttackTypes.None) {
+      throw new Error("You've already attacked this cell!");
+    }
+
+    const opponentCell = board[otherPlrID][x][y];
+    if (opponentCell !== null) {
+      hitCounts[plr.id][opponentCell] += 1;
+
+      if (hitCounts[plr.id][opponentCell] === ships[opponentCell]) {
+        sinkShip(x, y, opponentCell);
+      } else {
+        attacks[plr.id][x][y] = AttackTypes.Hit;
+      }
+    } else {
+      attacks[plr.id][x][y] = AttackTypes.Miss;
+    }
   }
 
   state.board = board;
+  state.attacks = attacks;
   return { state };
 }
 

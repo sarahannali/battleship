@@ -8,5 +8,12 @@ export const ships = {
 
 export const MoveTypes = {
   InitializeBoard: 0,
-  MakeMove: 1,
+  Attack: 1,
+};
+
+export const AttackTypes = {
+  None: 0,
+  Miss: 1,
+  Hit: 2,
+  Sunk: 3,
 };

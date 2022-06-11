@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
 import { ships } from '../Helpers/Types';
+import useGameStatus from '../Hooks/useGameStatus';
 
 const VALID_COLOR = '#08F7FE';
 const INVALID_COLOR = '#E92746';
@@ -16,6 +17,7 @@ function Ship({
     isValidShipPlacement(board, rowOffset, colOffset, ships[ship], vertical),
   );
   const [dragging, setDragging] = useState(false);
+  const [gameStarted] = useGameStatus();
 
   const length = ships[ship];
 
@@ -55,6 +57,7 @@ function Ship({
       grid={[boxSize, boxSize]}
       onDrag={onDrag}
       onStop={onStop}
+      disabled={gameStarted}
     >
       <Box
         sx={{
@@ -67,7 +70,7 @@ function Ship({
           borderRadius: '10px',
           backgroundColor: valid ? VALID_COLOR : INVALID_COLOR,
           transition: 'background-color .1s ease',
-          cursor: 'hand',
+          cursor: !gameStarted ? 'hand' : 'default',
           margin: '0px auto',
         }}
         />
