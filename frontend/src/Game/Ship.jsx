@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
 import { ships, Status } from '../Helpers/Types';
@@ -47,11 +47,8 @@ function Ship({
     setDragging(false);
   };
 
-  const shipSize = boxSize * 0.8;
+  const squareSize = boxSize * 0.4;
   const offset = boxSize * 0.2;
-
-  const longSide = `${(shipSize * length + offset * (length - 1))}px`;
-  const shortSide = `${shipSize}px`;
 
   return (
     <Draggable
@@ -62,19 +59,38 @@ function Ship({
     >
       <Box
         sx={{
-          height: `${shipSize}px`, width: `${shipSize}px`, padding: '5px', cursor: dragging ? 'grabbing' : 'grab',
+          height: '100%', width: '1000px', padding: '5px', cursor: dragging ? 'grabbing' : 'grab',
         }}
       >
-        <Box sx={{
-          height: rotated ? longSide : shortSide,
-          width: rotated ? shortSide : longSide,
-          borderRadius: '10px',
-          backgroundColor: valid ? VALID_COLOR : INVALID_COLOR,
-          transition: 'background-color .1s ease',
-          cursor: status === Status.PreGame ? 'hand' : 'default',
-          margin: '0px auto',
-        }}
-        />
+        <Stack direction={rotated ? 'column' : 'row'}>
+          {
+          [...Array(length)]
+            .map(() => (
+              <Box
+                sx={({
+                  height: `${squareSize}px`,
+                  width: `${squareSize}px`,
+                  marginBottom: `${offset}px`,
+                  marginRight: `${offset}px`,
+                  padding: '10px',
+                  borderRadius: '2px',
+                  backgroundColor: valid ? VALID_COLOR : INVALID_COLOR,
+                  transition: 'background-color .1s ease',
+                })}
+              >
+                <Box sx={({
+                  height: `${squareSize}px`,
+                  width: `${squareSize}px`,
+                  backgroundColor: '#000',
+                  margin: 'auto',
+                  opacity: '50%',
+                  transition: 'background-color .1s ease',
+                })}
+                />
+              </Box>
+            ))
+        }
+        </Stack>
       </Box>
     </Draggable>
   );
