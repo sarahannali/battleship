@@ -4,9 +4,9 @@ const {
 
 // TicTacToe Example
 const Status = Object.freeze({
-  PreGame: 'preGame',
-  InGame: 'inGame',
-  EndGame: 'endGame',
+  PreGame: 0,
+  InGame: 1,
+  EndGame: 2,
 });
 
 const MoveTypes = Object.freeze({
@@ -93,6 +93,7 @@ function onRoomStart() {
       board: {},
       attackBoard: {},
       hitCounts: {},
+      playersReady: 0,
       winner: null, // null means tie if game is finished, otherwise set to the plr that won
     },
   };
@@ -118,7 +119,6 @@ function onPlayerJoin(plr, boardGame) {
   state.hitCounts[plr.id] = getEmptyHitCountsObject();
 
   if (players.length === 2) {
-    state.status = Status.InGame;
     state.plrToMoveIndex = 0;
     return {
       state,
@@ -141,17 +141,22 @@ function onPlayerJoin(plr, boardGame) {
  */
 function onPlayerMove(plr, move, boardGame) {
   const { state, players } = boardGame;
-  const { board, attackBoard, hitCounts } = state;
+  const {
+    board, attackBoard, hitCounts,
+  } = state;
+
   const otherPlrID = getOtherPlayer(players, plr.id).id;
 
   const { moveType } = move;
-  if (state.status !== Status.InGame) {
-    throw new Error("game is not in progress, can't make move!");
-  }
 
   if (moveType === MoveTypes.InitializeBoard) {
     const { playerBoard } = move;
     board[plr.id] = playerBoard;
+    state.playersReady += 1;
+
+    if (state.playersReady === players.length) {
+      state.status = Status.InGame;
+    }
   } else if (moveType === MoveTypes.Attack) {
     const sinkShip = (x, y, opponentCell) => {
       if (
@@ -192,8 +197,6 @@ function onPlayerMove(plr, move, boardGame) {
     }
   }
 
-  state.board = board;
-  state.attackBoard = attackBoard;
   return { state };
 }
 

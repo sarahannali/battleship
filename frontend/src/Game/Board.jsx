@@ -20,6 +20,7 @@ function Board({
   mini, minify, opponent,
 }) {
   const { board, attackBoard, status } = useGameContext();
+  console.log('ATTACK BOARD: ', attackBoard);
   const { player } = usePlayerContext();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
@@ -109,8 +110,8 @@ function Board({
                     <AttackCell
                       x={rowNum}
                       y={colNum}
-                      attackState={!mini && attackBoard
-                        ? attackBoard[rowNum][colNum]
+                      attackState={!mini && attackBoard && player
+                        ? attackBoard[player.id][rowNum][colNum]
                         : AttackTypes.None}
                     />
                   )

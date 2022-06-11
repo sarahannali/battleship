@@ -12,12 +12,13 @@ const INVALID_COLOR = '#E92746';
 function Ship({
   ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
 }) {
+  const { status } = useGameContext();
+
   const [rotated, setRotated] = useState(vertical);
   const [valid, setValid] = useState(
     isValidShipPlacement(board, rowOffset, colOffset, ships[ship], vertical),
   );
   const [dragging, setDragging] = useState(false);
-  const { status } = useGameContext();
 
   const length = ships[ship];
 
@@ -70,7 +71,7 @@ function Ship({
           borderRadius: '10px',
           backgroundColor: valid ? VALID_COLOR : INVALID_COLOR,
           transition: 'background-color .1s ease',
-          cursor: !status === Status.PreGame ? 'hand' : 'default',
+          cursor: status === Status.PreGame ? 'hand' : 'default',
           margin: '0px auto',
         }}
         />
