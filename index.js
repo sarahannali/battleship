@@ -1,5 +1,5 @@
 const {
-  getRandomGameState, getEmptyBoard, getEmptyHitCountsObject, ships,
+  getRandomGameState, getEmptyBoard, getEmptyHitCountsObject, ships, isEndGame,
 } = require('./helpers');
 
 // TicTacToe Example
@@ -202,6 +202,12 @@ function onPlayerMove(plr, move, boardGame) {
       }
     } else {
       attackBoard[plr.id][x][y] = AttackTypes.Miss;
+    }
+
+    if (isEndGame(hitCounts[plr.id])) {
+      state.status = Status.EndGame;
+      state.winner = plr.id;
+      return { state, finished: true };
     }
 
     state.plrIDToMove = otherPlrID;

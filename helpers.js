@@ -85,9 +85,12 @@ function getRandomGameState() {
   return playerBoard;
 }
 
+const isEndGame = (hitCounts) => JSON.stringify(hitCounts) === JSON.stringify(ships);
+
 module.exports = {
   ships,
   getRandomGameState,
   getEmptyBoard,
   getEmptyHitCountsObject,
+  isEndGame,
 };
