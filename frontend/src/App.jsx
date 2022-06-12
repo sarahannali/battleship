@@ -1,47 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   ThemeProvider,
   Typography,
   Stack,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Backdrop,
-  CircularProgress,
   Snackbar,
   Alert,
   Fade,
+  Backdrop,
 } from '@mui/material';
 import client, { events } from '@urturn/client';
 import theme from './theme';
 import Board from './Game/Board';
 import { useGameContext } from './Contexts/GameContext';
 import { usePlayerContext } from './Contexts/PlayerContext';
-import { Status } from './Helpers/Types';
 import { useErrorContext } from './Contexts/ErrorContext';
-
-// const getStatusMsg = ({
-//   status, winner, finished, plrToMove,
-// }) => {
-//   if (finished) {
-//     if (winner) {
-//       return `${winner} won the game!`;
-//     }
-//     return "It's a tie!";
-//   } if (status === 'preGame') {
-//     return 'Waiting on another player...';
-//   } if (status === 'inGame') {
-//     return `Waiting on player ${plrToMove} to make their move...`;
-//   }
-//   return 'Error: You should never see this. Contact developers!';
-// };
+import { Status } from './Helpers/Types';
 
 function App() {
-  const { setGame, players, status } = useGameContext();
-  const { setPlayer } = usePlayerContext();
+  const { setGame, status, winner } = useGameContext();
+  const { player, setPlayer } = usePlayerContext();
   const { error, setError } = useErrorContext();
-  const [showOpponentBoard, setShowOpponentBoard] = useState(false);
 
   useEffect(() => {
     const onStateChanged = (newGameState) => {
@@ -62,38 +40,19 @@ function App() {
     <ThemeProvider theme={theme}>
       <Backdrop
         sx={{ color: '#fff', zIndex: 100 }}
-        open={showOpponentBoard && status === Status.PreGame}
+        open={status === Status.EndGame}
       >
-        <Stack margin={2} spacing={1} justifyContent="center" alignItems="center">
-          <CircularProgress color="inherit" />
-          <Typography variant="h5" textAlign="center" color="text.primary">Waiting on other player...</Typography>
-        </Stack>
+        <Typography variant="h5" textAlign="center" color="text.primary">
+          {winner === player.id ? 'You Won!' : 'You Lost.'}
+        </Typography>
       </Backdrop>
       <Stack spacing={1} sx={{ justifyContent: 'center' }}>
         <Typography variant="h3" textAlign="center" color="text.primary">Battleship</Typography>
-        {/* <Typography textAlign="center" color="text.primary">{generalStatus}</Typography> */}
-        <Stack margin={2} spacing={1} direction="row" justifyContent="center">
-          <Board
-            mini={showOpponentBoard}
-            minify={setShowOpponentBoard}
-          />
+        <Stack margin={10} spacing={10} direction="row" justifyContent="center">
+          <Board />
           <Board
             opponent
-            mini={!showOpponentBoard}
-            minify={setShowOpponentBoard}
           />
-          <Paper>
-            <Stack padding={1} sx={{ minWidth: '100px' }}>
-              <Typography color="text.primary">Players</Typography>
-              <List dense disablePadding padding={0}>
-                {players && players.map((player, ind) => (
-                  <ListItem dense disablePadding key={player}>
-                    <ListItemText primary={`${ind + 1}: ${player.username}`} />
-                  </ListItem>
-                ))}
-              </List>
-            </Stack>
-          </Paper>
         </Stack>
       </Stack>
       <Snackbar

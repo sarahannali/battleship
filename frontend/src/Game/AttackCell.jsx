@@ -23,7 +23,7 @@ function AttackCell({ x, y, attackState }) {
 
   const getColor = () => {
     if (attackState === AttackTypes.None) return 'transparent';
-    if (attackState === AttackTypes.Miss) return '#812ee0';
+    if (attackState === AttackTypes.Miss) return '#d5b1ff';
     if (attackState === AttackTypes.Hit) return '#de344f';
     if (attackState === AttackTypes.Sunk) return '#00000080';
     return 'transparent';
@@ -37,7 +37,7 @@ function AttackCell({ x, y, attackState }) {
         width: `${BOX_SIZE * 0.4}px`,
         padding: '10px',
         borderRadius: '2px',
-        backgroundColor: attackState === AttackTypes.Sunk ? '#812ee0' : 'transparent',
+        backgroundColor: attackState === AttackTypes.Sunk ? '#d5b1ff' : 'transparent',
         margin: 'auto',
       })}
       onClick={attack}
@@ -48,6 +48,7 @@ function AttackCell({ x, y, attackState }) {
           height: `${BOX_SIZE * 0.4}px`,
           width: `${BOX_SIZE * 0.4}px`,
           margin: 'auto',
+          borderRadius: '50%',
         }}
       />
     </Box>

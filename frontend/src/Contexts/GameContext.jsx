@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 
 const EMPTY_GAME_STATE = Object.freeze({
-  players: [],
+  players: null,
   state: {},
 });
 
@@ -18,6 +18,7 @@ export function GameProvider({ children }) {
     status: game.state.status,
     attackBoard: game.state.attackBoard,
     players: game.players,
+    winner: game.state.winner,
     setGame,
   }), [game]);
 

@@ -50,6 +50,8 @@ function Ship({
   const squareSize = boxSize * 0.4;
   const offset = boxSize * 0.2;
 
+  const defaultCursor = status === Status.PreGame ? 'grab' : 'default';
+
   return (
     <Draggable
       grid={[boxSize, boxSize]}
@@ -59,7 +61,7 @@ function Ship({
     >
       <Box
         sx={{
-          height: '100%', width: '1000px', padding: '5px', cursor: dragging ? 'grabbing' : 'grab',
+          height: '100%', width: '1000px', padding: '5px', cursor: dragging ? 'grabbing' : defaultCursor,
         }}
       >
         <Stack direction={rotated ? 'column' : 'row'}>

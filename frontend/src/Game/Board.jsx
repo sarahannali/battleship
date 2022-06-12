@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
+  Backdrop,
   Button,
-  Grid, Paper,
+  CircularProgress,
+  Grid, Paper, Stack, Typography,
 } from '@mui/material';
 import client from '@urturn/client';
 import Ship from './Ship';
@@ -14,19 +16,20 @@ import {
 import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
-import { EMPTY_BOARD } from '../Helpers/Utils';
+import { EMPTY_BOARD, BOX_SIZE } from '../Helpers/Utils';
 import { useErrorContext } from '../Contexts/ErrorContext';
 
 function Board({
-  mini, minify, opponent,
+  opponent,
 }) {
-  const { board, attackBoard, status } = useGameContext();
+  const {
+    board, attackBoard, status, players,
+  } = useGameContext();
   const { player } = usePlayerContext();
   const { setError } = useErrorContext();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
-
-  const BOX_SIZE = mini ? 10 : 50;
+  const [ready, setReady] = useState(false);
 
   const Item = styled(Paper)(() => ({
     height: `${BOX_SIZE}px`,
@@ -87,36 +90,50 @@ function Board({
     if (error) {
       setError(error.message);
     } else {
-      minify(true);
+      setReady(true);
     }
   };
 
+  const opponentName = players ? players.find((p) => p.id !== player.id).username : null;
+
   return (
     <div style={{ position: 'relative' }}>
-      <Grid
-        container
-        spacing={0}
-        sx={{
-          height: `${BOX_SIZE * boardSize}px`,
-          width: `${BOX_SIZE * boardSize}px`,
-          backgroundColor: '#18293b',
-        }}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: 100 }}
+        open={!players || (ready && status === Status.PreGame)}
       >
-        {localBoard.map((row, rowNum) => (
-          row.map((cell, colNum) => (
-            <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
-              <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex' }}>
-                { opponent
-                  ? (
-                    <AttackCell
-                      x={rowNum}
-                      y={colNum}
-                      attackState={!mini && attackBoard && player
-                        ? attackBoard[player.id][rowNum][colNum]
-                        : AttackTypes.None}
-                    />
-                  )
-                  : (isStartPosition(rowNum, colNum)
+        <Stack margin={2} spacing={1} justifyContent="center" alignItems="center">
+          <CircularProgress color="inherit" />
+          <Typography variant="h5" textAlign="center" color="text.primary">Waiting on other player...</Typography>
+        </Stack>
+      </Backdrop>
+      <Stack justifyContent="center" alignItems="center" spacing={3}>
+        <Typography variant="h5" textAlign="center" color="text.primary">{opponent ? `${opponentName}'s Fleet` : 'Your Fleet' }</Typography>
+        <div style={{ boxShadow: `0px 0px 10px 1px${opponent ? '#d5b1ff' : '#08F7FE'}` }}>
+          <Grid
+            container
+            spacing={0}
+            sx={{
+              height: `${BOX_SIZE * boardSize}px`,
+              width: `${BOX_SIZE * boardSize}px`,
+              backgroundColor: '#18293b',
+            }}
+          >
+            {localBoard.map((row, rowNum) => (
+              row.map((cell, colNum) => (
+                <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+                  <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex' }}>
+                    { opponent
+                      ? (
+                        <AttackCell
+                          x={rowNum}
+                          y={colNum}
+                          attackState={attackBoard && player
+                            ? attackBoard[player.id][rowNum][colNum]
+                            : AttackTypes.None}
+                        />
+                      )
+                      : (isStartPosition(rowNum, colNum)
                     && (
                     <Ship
                       ships={ships}
@@ -129,22 +146,24 @@ function Board({
                       updateBoard={updateBoard}
                     />
                     )
-                  )}
-              </Item>
-            </Grid>
-          ))
-        ))}
-      </Grid>
-      { status === Status.PreGame && !mini
+                      )}
+                  </Item>
+                </Grid>
+              ))
+            ))}
+          </Grid>
+        </div>
+        { status === Status.PreGame && !opponent
           && (
           <Button
-            sx={{ width: '200px', mt: 10 }}
+            sx={{ width: '200px' }}
             variant="outlined"
             onClick={startBattle}
           >
             Start Battle
           </Button>
           )}
+      </Stack>
     </div>
   );
 }

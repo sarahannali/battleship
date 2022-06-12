@@ -95,7 +95,7 @@ function onRoomStart() {
       hitCounts: {},
       playersReady: 0,
       plrIDToMove: null,
-      winner: null, // null means tie if game is finished, otherwise set to the plr that won
+      winner: 'id_0', // null means tie if game is finished, otherwise set to the plr that won
     },
   };
 }
@@ -121,6 +121,7 @@ function onPlayerJoin(plr, boardGame) {
 
   if (players.length === 2) {
     state.plrIDToMove = players[0].id;
+    state.status = Status.EndGame;
 
     return {
       state,
