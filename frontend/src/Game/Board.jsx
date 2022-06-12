@@ -105,7 +105,7 @@ function Board({
         {localBoard.map((row, rowNum) => (
           row.map((cell, colNum) => (
             <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
-              <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
+              <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex' }}>
                 { opponent
                   ? (
                     <AttackCell
