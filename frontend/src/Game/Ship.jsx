@@ -13,21 +13,25 @@ function Ship({
   ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
 }) {
   const { status } = useGameContext();
+  const length = ships[ship];
 
   const [rotated, setRotated] = useState(vertical);
-  const [valid, setValid] = useState(
+  const [valid] = useState(
     isValidShipPlacement(board, rowOffset, colOffset, ships[ship], vertical),
   );
   const [dragging, setDragging] = useState(false);
-
-  const length = ships[ship];
-
-  const onDrag = (e, data) => {
+  const [bounds, setBounds] = useState({
+    top: (-50 * rowOffset),
+    left: (-50 * colOffset),
+    bottom: ((10 - (vertical ? rowOffset + length : rowOffset + 1)) * 50),
+    right: ((10 - (vertical ? colOffset + 1 : colOffset + length)) * 50),
+  });
+  const onDrag = () => {
     setDragging(true);
-    const newRow = rowOffset + (data.y / boxSize);
-    const newCol = colOffset + (data.x / boxSize);
+    // const newRow = rowOffset + (data.y / boxSize);
+    // const newCol = colOffset + (data.x / boxSize);
 
-    setValid(isValidShipPlacement(board, newRow, newCol, length, rotated));
+    // setValid(isValidShipPlacement(board, newRow, newCol, length, rotated));
   };
 
   const rotateShip = () => {
@@ -41,6 +45,12 @@ function Ship({
       const newCol = colOffset + (data.x / boxSize);
 
       updateBoard(ship, newRow, newCol, rotated);
+      setBounds({
+        top: (-50 * newRow),
+        left: (-50 * newCol),
+        bottom: ((10 - (rotated ? rowOffset + length : rowOffset + 1)) * 50),
+        right: ((10 - (rotated ? colOffset + 1 : colOffset + length)) * 50),
+      });
     } else {
       rotateShip();
     }
@@ -58,6 +68,7 @@ function Ship({
       onDrag={onDrag}
       onStop={onStop}
       disabled={status === Status.InGame}
+      bounds={bounds}
     >
       <Box
         sx={{

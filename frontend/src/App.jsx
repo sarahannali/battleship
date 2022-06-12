@@ -43,7 +43,7 @@ function App() {
         open={status === Status.EndGame}
       >
         <Typography variant="h5" textAlign="center" color="text.primary">
-          {winner === player.id ? 'You Won!' : 'You Lost.'}
+          {player && winner && winner === player.id ? 'You Won!' : 'You Lost.'}
         </Typography>
       </Backdrop>
       <Stack spacing={1} sx={{ justifyContent: 'center' }}>

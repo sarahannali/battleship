@@ -94,7 +94,7 @@ function Board({
     }
   };
 
-  const opponentName = players ? players.find((p) => p.id !== player.id).username : null;
+  const opponentName = players ? players.find((p) => p.id !== player.id).username : 'Opponent';
 
   return (
     <div style={{ position: 'relative' }}>
@@ -102,7 +102,7 @@ function Board({
         sx={{ color: '#fff', zIndex: 100 }}
         open={!players || (ready && status === Status.PreGame)}
       >
-        <Stack margin={2} spacing={1} justifyContent="center" alignItems="center">
+        <Stack margin={2} spacing={2} justifyContent="center" alignItems="center">
           <CircularProgress color="inherit" />
           <Typography variant="h5" textAlign="center" color="text.primary">Waiting on other player...</Typography>
         </Stack>
