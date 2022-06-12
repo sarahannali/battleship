@@ -16,7 +16,7 @@ import {
 import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
-import { EMPTY_BOARD, BOX_SIZE } from '../Helpers/Utils';
+import { EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
 import { useErrorContext } from '../Contexts/ErrorContext';
 
 function Board({
@@ -30,6 +30,7 @@ function Board({
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
   const [ready, setReady] = useState(false);
+  const [shake, setShake] = useState(false);
 
   const Item = styled(Paper)(() => ({
     height: `${BOX_SIZE}px`,
@@ -82,6 +83,11 @@ function Board({
     setLocalBoard(newBoard);
   };
 
+  const shakeBoard = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  };
+
   const startBattle = async (event) => {
     event.preventDefault();
     const move = { moveType: MoveTypes.InitializeBoard, playerBoard: localBoard };
@@ -109,7 +115,12 @@ function Board({
       </Backdrop>
       <Stack justifyContent="center" alignItems="center" spacing={3}>
         <Typography variant="h5" textAlign="center" color="text.primary">{opponent ? `${opponentName}'s Fleet` : 'Your Fleet' }</Typography>
-        <div style={{ boxShadow: `0px 0px 10px 1px${opponent ? '#d5b1ff' : '#08F7FE'}` }}>
+        <div style={{
+          boxShadow: `0px 0px 10px 1px${opponent ? '#d5b1ff' : '#08F7FE'}`,
+          animation: shake ? 'shake 1s linear infinite' : 'none',
+          '@keyframes shake': SHAKE_KEYFRAMES,
+        }}
+        >
           <Grid
             container
             spacing={0}
@@ -131,6 +142,7 @@ function Board({
                           attackState={attackBoard && player
                             ? attackBoard[player.id][rowNum][colNum]
                             : AttackTypes.None}
+                          shakeBoard={shakeBoard}
                         />
                       )
                       : (isStartPosition(rowNum, colNum)

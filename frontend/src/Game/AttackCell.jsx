@@ -8,7 +8,9 @@ import { useErrorContext } from '../Contexts/ErrorContext';
 import { AttackTypes, MoveTypes } from '../Helpers/Types';
 import { BOX_SIZE } from '../Helpers/Utils';
 
-function AttackCell({ x, y, attackState }) {
+function AttackCell({
+  x, y, attackState, shakeBoard,
+}) {
   const { setError } = useErrorContext();
 
   const attack = async (event) => {
@@ -17,6 +19,7 @@ function AttackCell({ x, y, attackState }) {
     const { error } = await client.makeMove(move);
 
     if (error) {
+      shakeBoard();
       setError(error.message);
     }
   };
