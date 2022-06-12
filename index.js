@@ -161,7 +161,7 @@ function onPlayerMove(plr, move, boardGame) {
     }
   } else if (moveType === MoveTypes.Attack) {
     if (state.status === Status.PreGame) {
-      throw new Error("Game hasn't started! Waiting on other player.");
+      throw new Error("The game hasn't started!");
     } else if (plrIDToMove !== plr.id) {
       throw new Error("It's not your turn! Waiting on other player.");
     }

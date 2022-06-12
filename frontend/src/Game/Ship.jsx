@@ -5,9 +5,10 @@ import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
 import { ships, Status } from '../Helpers/Types';
 import { useGameContext } from '../Contexts/GameContext';
+import { SHAKE_KEYFRAMES } from '../Helpers/Utils';
 
 const VALID_COLOR = '#08F7FE';
-const INVALID_COLOR = '#E92746';
+// const INVALID_COLOR = '#E92746';
 
 function Ship({
   ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
@@ -16,9 +17,7 @@ function Ship({
   const length = ships[ship];
 
   const [rotated, setRotated] = useState(vertical);
-  const [valid] = useState(
-    isValidShipPlacement(board, rowOffset, colOffset, ships[ship], vertical),
-  );
+  const [valid, setValid] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [bounds, setBounds] = useState({
     top: (-50 * rowOffset),
@@ -26,17 +25,23 @@ function Ship({
     bottom: ((10 - (vertical ? rowOffset + length : rowOffset + 1)) * 50),
     right: ((10 - (vertical ? colOffset + 1 : colOffset + length)) * 50),
   });
+
   const onDrag = () => {
     setDragging(true);
-    // const newRow = rowOffset + (data.y / boxSize);
-    // const newCol = colOffset + (data.x / boxSize);
+  };
 
-    // setValid(isValidShipPlacement(board, newRow, newCol, length, rotated));
+  const flashInvalid = () => {
+    setValid(false);
+    setTimeout(() => setValid(true), 500);
   };
 
   const rotateShip = () => {
-    updateBoard(ship, rowOffset, colOffset, !rotated);
-    setRotated(!rotated);
+    if (isValidShipPlacement(board, rowOffset, colOffset, length, !rotated, ship)) {
+      updateBoard(ship, rowOffset, colOffset, !rotated);
+      setRotated(!rotated);
+    } else {
+      flashInvalid();
+    }
   };
 
   const onStop = (e, data) => {
@@ -44,13 +49,17 @@ function Ship({
       const newRow = rowOffset + (data.y / boxSize);
       const newCol = colOffset + (data.x / boxSize);
 
-      updateBoard(ship, newRow, newCol, rotated);
-      setBounds({
-        top: (-50 * newRow),
-        left: (-50 * newCol),
-        bottom: ((10 - (rotated ? rowOffset + length : rowOffset + 1)) * 50),
-        right: ((10 - (rotated ? colOffset + 1 : colOffset + length)) * 50),
-      });
+      if (isValidShipPlacement(board, newRow, newCol, length, rotated, ship)) {
+        updateBoard(ship, newRow, newCol, rotated);
+        setBounds({
+          top: (-50 * newRow),
+          left: (-50 * newCol),
+          bottom: ((10 - (rotated ? rowOffset + length : rowOffset + 1)) * 50),
+          right: ((10 - (rotated ? colOffset + 1 : colOffset + length)) * 50),
+        });
+      } else {
+        updateBoard(ship, rowOffset, colOffset, rotated);
+      }
     } else {
       rotateShip();
     }
@@ -87,8 +96,10 @@ function Ship({
                   marginRight: `${offset}px`,
                   padding: '10px',
                   borderRadius: '2px',
-                  backgroundColor: valid ? VALID_COLOR : INVALID_COLOR,
+                  backgroundColor: VALID_COLOR,
+                  animation: valid ? 'none' : 'shake 1s linear infinite',
                   transition: 'background-color .1s ease',
+                  '@keyframes shake': SHAKE_KEYFRAMES,
                 })}
               >
                 <Box sx={({
