@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
@@ -15,34 +13,30 @@ import {
 import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
-import { EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
+import { EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Constants';
 import { useErrorContext } from '../Contexts/ErrorContext';
 import FleetCell from './FleetCell';
+import useShake from '../Hooks/useShake';
 
-function Board({
-  opponent,
-}) {
+const Item = styled(Paper)(() => ({
+  height: `${BOX_SIZE}px`,
+  width: `${BOX_SIZE}px`,
+  textAlign: 'center',
+  borderRadius: '0',
+  boxSizing: 'border-box',
+  backgroundColor: 'transparent',
+}));
+
+function Board({ opponent }) {
   const {
     board, attackBoard, status, players,
   } = useGameContext();
   const { player } = usePlayerContext();
   const { setError } = useErrorContext();
-
-  // const getOtherPlayer = () => players && players
-  //   .find((plr) => plr.id !== player.id);
+  const { shake, isShaking } = useShake();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
   const [ready, setReady] = useState(false);
-  const [shake, setShake] = useState(false);
-
-  const Item = styled(Paper)(() => ({
-    height: `${BOX_SIZE}px`,
-    width: `${BOX_SIZE}px`,
-    textAlign: 'center',
-    borderRadius: '0',
-    boxSizing: 'border-box',
-    backgroundColor: 'transparent',
-  }));
 
   useEffect(() => {
     if (player && board) {
@@ -70,11 +64,6 @@ function Board({
     setLocalBoard(newBoard);
   };
 
-  const shakeBoard = () => {
-    setShake(true);
-    setTimeout(() => setShake(false), 500);
-  };
-
   const startBattle = async (event) => {
     event.preventDefault();
     const move = { moveType: MoveTypes.InitializeBoard, playerBoard: localBoard };
@@ -89,8 +78,6 @@ function Board({
 
   const opponentName = players ? players.find((p) => p.id !== player.id).username : 'Opponent';
 
-  console.log(players, ready, status);
-  console.log(!players || (ready && status === Status.PreGame));
   return (
     <div style={{ position: 'relative' }}>
       <Backdrop
@@ -106,7 +93,7 @@ function Board({
         <Typography variant="h5" textAlign="center" color="text.primary">{opponent ? `${opponentName}'s Fleet` : 'Your Fleet' }</Typography>
         <div style={{
           boxShadow: `0px 0px 10px 1px${opponent ? '#d5b1ff' : '#08F7FE'}`,
-          animation: shake ? 'shake 1s linear infinite' : 'none',
+          animation: isShaking ? 'shake 1s linear infinite' : 'none',
           '@keyframes shake': SHAKE_KEYFRAMES,
         }}
         >
@@ -134,7 +121,7 @@ function Board({
                           attackState={attackBoard && player
                             ? attackBoard[player.id][rowNum][colNum]
                             : AttackTypes.None}
-                          shakeBoard={shakeBoard}
+                          shakeBoard={shake}
                         />
                       )
                       : (
