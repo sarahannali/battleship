@@ -27,6 +27,8 @@ function Ship({
 
   const otherPlayer = getOtherPlayer(player);
   const length = ships[ship];
+  const offset = BOX_SIZE * 0.1;
+  const defaultCursor = status === Status.PreGame ? 'grab' : 'default';
 
   const [rotated, setRotated] = useState(vertical);
   const [dragging, setDragging] = useState(false);
@@ -57,10 +59,6 @@ function Ship({
     }
     setDragging(false);
   };
-
-  const offset = BOX_SIZE * 0.1;
-
-  const defaultCursor = status === Status.PreGame ? 'grab' : 'default';
 
   const getAttackColor = (x, y) => {
     if (otherPlayer && attackBoard[otherPlayer.id]) {
