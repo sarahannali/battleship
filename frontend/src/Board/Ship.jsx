@@ -6,7 +6,7 @@ import isValidShipPlacement from '../Helpers/ValidShipPlacement';
 import { AttackTypes, ships, Status } from '../Helpers/Types';
 import { useGameContext } from '../Contexts/GameContext';
 import {
-  ATTACK_COLOR, BOX_SIZE, OPPONENT_COLOR, SHAKE_KEYFRAMES, SHIP_SIZE,
+  ATTACK_COLOR, BOX_SIZE, PLAYER_COLOR, SHAKE_KEYFRAMES, SHIP_SIZE,
 } from '../Helpers/Constants';
 import { usePlayerContext } from '../Contexts/PlayerContext';
 import useFlash from '../Hooks/useFlash';
@@ -66,7 +66,7 @@ function Ship({
 
       if (attackCell === AttackTypes.Hit || attackCell === AttackTypes.Sunk) return ATTACK_COLOR;
     }
-    return OPPONENT_COLOR;
+    return PLAYER_COLOR;
   };
 
   return (
