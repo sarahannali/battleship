@@ -12,7 +12,9 @@ const GameContext = createContext();
 export function GameProvider({ children }) {
   const [game, setGame] = useState(EMPTY_GAME_STATE);
 
-  const getOtherPlayer = (player) => game.players ?? game.players.find((p) => p.id !== player.id);
+  const getOtherPlayer = (player) => ((game.players && player)
+    ? game.players.find((p) => p.id !== player.id)
+    : null);
 
   const value = useMemo(() => ({
     board: game.state.board,

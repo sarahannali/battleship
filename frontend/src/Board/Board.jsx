@@ -81,7 +81,7 @@ function Board({ opponent }) {
     }
   };
 
-  const opponentName = players ? getOtherPlayer(player) : 'Opponent';
+  const opponentName = getOtherPlayer(player)?.username ?? 'Opponent';
 
   return (
     <Box style={{ position: 'relative' }}>

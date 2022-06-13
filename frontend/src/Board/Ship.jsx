@@ -43,7 +43,7 @@ function Ship({
     }
   };
 
-  const onStop = (e, data) => {
+  const onStop = (_, data) => {
     if (dragging) {
       const newRow = rowOffset + (data.y / BOX_SIZE);
       const newCol = colOffset + (data.x / BOX_SIZE);
