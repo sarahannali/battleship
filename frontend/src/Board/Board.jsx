@@ -20,7 +20,7 @@ import {
 } from '../Helpers/Constants';
 import { useErrorContext } from '../Contexts/ErrorContext';
 import FleetCell from './FleetCell';
-import useShake from '../Hooks/useShake';
+import useFlash from '../Hooks/useFlash';
 import LoadingBackdrop from '../Common/LoadingBackdrop';
 
 const Item = styled(Paper)(() => ({
@@ -38,7 +38,7 @@ function Board({ opponent }) {
   } = useGameContext();
   const { player } = usePlayerContext();
   const { setError } = useErrorContext();
-  const { shake, isShaking } = useShake();
+  const { flash, flashing } = useFlash();
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
   const [ready, setReady] = useState(false);
@@ -91,7 +91,7 @@ function Board({ opponent }) {
         <Box
           style={{
             boxShadow: `0px 0px 10px 1px${opponent ? OPPONENT_COLOR : PLAYER_COLOR}`,
-            animation: isShaking ? 'shake 1s linear infinite' : 'none',
+            animation: flashing ? 'shake 1s linear infinite' : 'none',
             '@keyframes shake': SHAKE_KEYFRAMES,
           }}
         >
@@ -119,7 +119,7 @@ function Board({ opponent }) {
                           attackState={attackBoard && player
                             ? attackBoard[player.id][rowNum][colNum]
                             : AttackTypes.None}
-                          shakeBoard={shake}
+                          shakeBoard={flash}
                         />
                       )
                       : (
