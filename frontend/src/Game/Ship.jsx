@@ -8,11 +8,11 @@ import { useGameContext } from '../Contexts/GameContext';
 import { BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
 import { usePlayerContext } from '../Contexts/PlayerContext';
 
-const VALID_COLOR = '#08F7FE';
+// const VALID_COLOR = '#08F7FE';
 // const INVALID_COLOR = '#E92746';
 
 function Ship({
-  ship, board, vertical, rowOffset, colOffset, updateBoard, sunk,
+  ship, board, vertical, rowOffset, colOffset, updateBoard,
 }) {
   const { status, attackBoard, players } = useGameContext();
   const { player } = usePlayerContext();
@@ -81,11 +81,10 @@ function Ship({
     if (otherPlayer && attackBoard[otherPlayer.id]) {
       const attackCell = attackBoard[otherPlayer.id][x][y];
 
-      if (attackCell === AttackTypes.Miss) return '#08f7fe50';
-      if (attackCell === AttackTypes.Hit) return '#de344f';
-      if (attackCell === AttackTypes.Sunk) return '#00000080';
+      if (attackCell === AttackTypes.Miss) return '#08f7fe';
+      if (attackCell === AttackTypes.Hit || attackCell === AttackTypes.Sunk) return '#de344f';
     }
-    return '#00000080';
+    return '#08f7fe';
   };
 
   return (
@@ -115,7 +114,10 @@ function Ship({
                   margin: `${offset}px`,
                   padding: '10px',
                   borderRadius: '2px',
-                  backgroundColor: sunk ? '#de344f' : VALID_COLOR,
+                  backgroundColor: getAttackColor(
+                    rowOffset + (vertical ? idx : 0),
+                    colOffset + (vertical ? 0 : idx),
+                  ),
                   animation: valid ? 'none' : 'shake 1s linear infinite',
                   transition: 'background-color .1s ease',
                   '@keyframes shake': SHAKE_KEYFRAMES,
@@ -124,10 +126,7 @@ function Ship({
                 <Box sx={({
                   height: `${squareSize}px`,
                   width: `${squareSize}px`,
-                  backgroundColor: getAttackColor(
-                    rowOffset + (vertical ? idx : 0),
-                    colOffset + (vertical ? 0 : idx),
-                  ),
+                  backgroundColor: '#00000080',
                   margin: 'auto',
                   transition: 'background-color .1s ease',
                 })}
