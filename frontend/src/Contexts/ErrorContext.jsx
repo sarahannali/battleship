@@ -4,7 +4,6 @@ import React, {
 
 const ErrorContext = createContext();
 
-// eslint-disable-next-line react/prop-types
 export function ErrorProvider({ children }) {
   const [error, setError] = useState(null);
 

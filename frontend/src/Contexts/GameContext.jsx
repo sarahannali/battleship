@@ -9,7 +9,6 @@ const EMPTY_GAME_STATE = Object.freeze({
 
 const GameContext = createContext();
 
-// eslint-disable-next-line react/prop-types
 export function GameProvider({ children }) {
   const [game, setGame] = useState(EMPTY_GAME_STATE);
 

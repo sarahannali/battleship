@@ -4,7 +4,6 @@ import React, {
 
 const PlayerContext = createContext();
 
-// eslint-disable-next-line react/prop-types
 export function PlayerProvider({ children }) {
   const [player, setPlayer] = useState(null);
 
