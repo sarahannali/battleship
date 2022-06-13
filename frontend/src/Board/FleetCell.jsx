@@ -3,16 +3,17 @@ import { Box } from '@mui/material';
 import React from 'react';
 import { useGameContext } from '../Contexts/GameContext';
 import { usePlayerContext } from '../Contexts/PlayerContext';
+import { ATTACK_COLOR, SHIP_SIZE } from '../Helpers/Constants';
 import { AttackTypes } from '../Helpers/Types';
 import Ship from './Ship';
 
 function FleetCell({
   x, y, localBoard, updateBoard,
 }) {
-  const { attackBoard, players } = useGameContext();
+  const { attackBoard, getOtherPlayer } = useGameContext();
   const { player } = usePlayerContext();
 
-  const otherPlayer = players ? players.find((plr) => plr.id !== player.id) : null;
+  const otherPlayer = getOtherPlayer(player);
 
   const isStartPosition = () => {
     const shipType = localBoard[x][y];
@@ -34,9 +35,7 @@ function FleetCell({
     if (otherPlayer) {
       const attackCell = attackBoard[otherPlayer.id][x][y];
 
-      if (attackCell === AttackTypes.Miss) return '#de344f';
-      if (attackCell === AttackTypes.Hit) return '#de344f';
-      if (attackCell === AttackTypes.Sunk) return '#de344f';
+      if (attackCell !== AttackTypes.None) return ATTACK_COLOR;
     }
     return 'transparent';
   };
@@ -44,8 +43,8 @@ function FleetCell({
   if (isStartPosition()) {
     return (
       <Box sx={{
-        height: '20px',
-        width: '20px',
+        height: SHIP_SIZE,
+        width: SHIP_SIZE,
       }}
       >
         <Ship
@@ -55,7 +54,6 @@ function FleetCell({
           rowOffset={x}
           colOffset={y}
           updateBoard={updateBoard}
-          sunk={attackBoard[otherPlayer.id][x][y] === AttackTypes.Sunk}
         />
       </Box>
     );
@@ -63,8 +61,8 @@ function FleetCell({
 
   return (
     <Box sx={{
-      height: '20px',
-      width: '20px',
+      height: SHIP_SIZE,
+      width: SHIP_SIZE,
       backgroundColor: getAttackColor(),
       borderRadius: '50%',
     }}
