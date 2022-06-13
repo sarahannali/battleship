@@ -1,12 +1,9 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable react/prop-types */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Box } from '@mui/material';
 import client from '@urturn/client';
 import React from 'react';
 import { useErrorContext } from '../Contexts/ErrorContext';
 import { AttackTypes, MoveTypes } from '../Helpers/Types';
-import { BOX_SIZE } from '../Helpers/Utils';
+import { ATTACK_COLOR, OPPONENT_COLOR, SHIP_SIZE } from '../Helpers/Constants';
 
 function AttackCell({
   x, y, attackState, shakeBoard,
@@ -25,22 +22,20 @@ function AttackCell({
   };
 
   const getColor = () => {
-    if (attackState === AttackTypes.None) return 'transparent';
-    if (attackState === AttackTypes.Miss) return '#d5b1ff';
-    if (attackState === AttackTypes.Hit) return '#de344f';
+    if (attackState === AttackTypes.Miss) return OPPONENT_COLOR;
+    if (attackState === AttackTypes.Hit) return ATTACK_COLOR;
     if (attackState === AttackTypes.Sunk) return '#00000080';
     return 'transparent';
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <Box
       sx={({
-        height: `${BOX_SIZE * 0.4}px`,
-        width: `${BOX_SIZE * 0.4}px`,
+        height: `${SHIP_SIZE}px`,
+        width: `${SHIP_SIZE}px`,
         padding: '10px',
         borderRadius: '2px',
-        backgroundColor: attackState === AttackTypes.Sunk ? '#d5b1ff' : 'transparent',
+        backgroundColor: attackState === AttackTypes.Sunk ? OPPONENT_COLOR : 'transparent',
         margin: 'auto',
       })}
       onClick={attack}
@@ -48,8 +43,8 @@ function AttackCell({
       <div
         style={{
           backgroundColor: getColor(),
-          height: `${BOX_SIZE * 0.4}px`,
-          width: `${BOX_SIZE * 0.4}px`,
+          height: `${SHIP_SIZE}px`,
+          width: `${SHIP_SIZE}px`,
           margin: 'auto',
           borderRadius: '50%',
         }}
