@@ -16,3 +16,7 @@ export const SHAKE_KEYFRAMES = {
     transform: 'translate3d(4px, 0, 0)',
   },
 };
+
+export const PLAYER_COLOR = '#08F7FE';
+
+export const OPPONENT_COLOR = '#d5b1ff';

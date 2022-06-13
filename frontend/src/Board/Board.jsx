@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
-  Backdrop,
   Button,
-  CircularProgress,
-  Grid, Paper, Stack, Typography,
+  Grid,
+  Paper,
+  Stack,
+  Typography,
+  Box,
 } from '@mui/material';
 import client from '@urturn/client';
 import {
@@ -13,10 +15,13 @@ import {
 import { useGameContext } from '../Contexts/GameContext';
 import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
-import { EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Constants';
+import {
+  EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES, PLAYER_COLOR, OPPONENT_COLOR,
+} from '../Helpers/Constants';
 import { useErrorContext } from '../Contexts/ErrorContext';
 import FleetCell from './FleetCell';
 import useShake from '../Hooks/useShake';
+import LoadingBackdrop from '../Common/LoadingBackdrop';
 
 const Item = styled(Paper)(() => ({
   height: `${BOX_SIZE}px`,
@@ -29,7 +34,7 @@ const Item = styled(Paper)(() => ({
 
 function Board({ opponent }) {
   const {
-    board, attackBoard, status, players,
+    board, attackBoard, status, players, getOtherPlayer,
   } = useGameContext();
   const { player } = usePlayerContext();
   const { setError } = useErrorContext();
@@ -76,26 +81,19 @@ function Board({ opponent }) {
     }
   };
 
-  const opponentName = players ? players.find((p) => p.id !== player.id).username : 'Opponent';
+  const opponentName = players ? getOtherPlayer(player) : 'Opponent';
 
   return (
-    <div style={{ position: 'relative' }}>
-      <Backdrop
-        sx={{ color: '#fff', zIndex: 100 }}
-        open={!players || (ready && status === Status.PreGame)}
-      >
-        <Stack margin={2} spacing={2} justifyContent="center" alignItems="center">
-          <CircularProgress color="inherit" />
-          <Typography variant="h5" textAlign="center" color="text.primary">Waiting on other player...</Typography>
-        </Stack>
-      </Backdrop>
+    <Box style={{ position: 'relative' }}>
+      <LoadingBackdrop open={!players || (ready && status === Status.PreGame)} text="Waiting on other player..." />
       <Stack justifyContent="center" alignItems="center" spacing={3}>
         <Typography variant="h5" textAlign="center" color="text.primary">{opponent ? `${opponentName}'s Fleet` : 'Your Fleet' }</Typography>
-        <div style={{
-          boxShadow: `0px 0px 10px 1px${opponent ? '#d5b1ff' : '#08F7FE'}`,
-          animation: isShaking ? 'shake 1s linear infinite' : 'none',
-          '@keyframes shake': SHAKE_KEYFRAMES,
-        }}
+        <Box
+          style={{
+            boxShadow: `0px 0px 10px 1px${opponent ? OPPONENT_COLOR : PLAYER_COLOR}`,
+            animation: isShaking ? 'shake 1s linear infinite' : 'none',
+            '@keyframes shake': SHAKE_KEYFRAMES,
+          }}
         >
           <Grid
             container
@@ -107,13 +105,13 @@ function Board({ opponent }) {
             }}
           >
             {localBoard.map((row, rowNum) => (
-              row.map((cell, colNum) => (
+              row.map((_, colNum) => (
                 <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
                   <Item sx={{
                     backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex', justifyContent: 'center', alignItems: 'center',
                   }}
                   >
-                    {opponent
+                    { opponent
                       ? (
                         <AttackCell
                           x={rowNum}
@@ -137,8 +135,9 @@ function Board({ opponent }) {
               ))
             ))}
           </Grid>
-        </div>
-        { status === Status.PreGame && !opponent
+        </Box>
+        { status === Status.PreGame
+          && !opponent
           && (
           <Button
             sx={{ width: '200px' }}
@@ -149,7 +148,7 @@ function Board({ opponent }) {
           </Button>
           )}
       </Stack>
-    </div>
+    </Box>
   );
 }
 

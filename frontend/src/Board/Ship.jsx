@@ -5,11 +5,8 @@ import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
 import { AttackTypes, ships, Status } from '../Helpers/Types';
 import { useGameContext } from '../Contexts/GameContext';
-import { BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
+import { BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Constants';
 import { usePlayerContext } from '../Contexts/PlayerContext';
-
-// const VALID_COLOR = '#08F7FE';
-// const INVALID_COLOR = '#E92746';
 
 function Ship({
   ship, board, vertical, rowOffset, colOffset, updateBoard,
