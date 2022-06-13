@@ -3,17 +3,22 @@ import React, { useState } from 'react';
 import { Box, Stack } from '@mui/material';
 import Draggable from 'react-draggable';
 import isValidShipPlacement from '../Helpers/ValidShipPlacement';
-import { ships, Status } from '../Helpers/Types';
+import { AttackTypes, ships, Status } from '../Helpers/Types';
 import { useGameContext } from '../Contexts/GameContext';
-import { SHAKE_KEYFRAMES } from '../Helpers/Utils';
+import { BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
+import { usePlayerContext } from '../Contexts/PlayerContext';
 
 const VALID_COLOR = '#08F7FE';
 // const INVALID_COLOR = '#E92746';
 
 function Ship({
-  ship, board, boxSize, vertical, rowOffset, colOffset, updateBoard,
+  ship, board, vertical, rowOffset, colOffset, updateBoard, sunk,
 }) {
-  const { status } = useGameContext();
+  const { status, attackBoard, players } = useGameContext();
+  const { player } = usePlayerContext();
+
+  const otherPlayer = players ? players.find((plr) => plr.id !== player.id) : null;
+
   const length = ships[ship];
 
   const [rotated, setRotated] = useState(vertical);
@@ -46,8 +51,8 @@ function Ship({
 
   const onStop = (e, data) => {
     if (dragging) {
-      const newRow = rowOffset + (data.y / boxSize);
-      const newCol = colOffset + (data.x / boxSize);
+      const newRow = rowOffset + (data.y / BOX_SIZE);
+      const newCol = colOffset + (data.x / BOX_SIZE);
 
       if (isValidShipPlacement(board, newRow, newCol, length, rotated, ship)) {
         updateBoard(ship, newRow, newCol, rotated);
@@ -66,14 +71,26 @@ function Ship({
     setDragging(false);
   };
 
-  const squareSize = boxSize * 0.4;
-  const offset = boxSize * 0.2;
+  const squareSize = BOX_SIZE * 0.4;
+  const offset = BOX_SIZE * 0.1;
 
   const defaultCursor = status === Status.PreGame ? 'grab' : 'default';
 
+  const getAttackColor = (x, y) => {
+    // console.log('X: ', x, ' Y: ', y);
+    if (otherPlayer && attackBoard[otherPlayer.id]) {
+      const attackCell = attackBoard[otherPlayer.id][x][y];
+
+      if (attackCell === AttackTypes.Miss) return '#08f7fe50';
+      if (attackCell === AttackTypes.Hit) return '#de344f';
+      if (attackCell === AttackTypes.Sunk) return '#00000080';
+    }
+    return '#00000080';
+  };
+
   return (
     <Draggable
-      grid={[boxSize, boxSize]}
+      grid={[BOX_SIZE, BOX_SIZE]}
       onDrag={onDrag}
       onStop={onStop}
       disabled={status === Status.InGame}
@@ -81,22 +98,24 @@ function Ship({
     >
       <Box
         sx={{
-          height: '100%', width: '1000px', padding: '5px', cursor: dragging ? 'grabbing' : defaultCursor,
+          height: '100%',
+          cursor: dragging ? 'grabbing' : defaultCursor,
+          marginTop: '-15px',
+          marginLeft: '-15px',
         }}
       >
         <Stack direction={rotated ? 'column' : 'row'}>
           {
           [...Array(length)]
-            .map(() => (
+            .map((i, idx) => (
               <Box
                 sx={({
                   height: `${squareSize}px`,
                   width: `${squareSize}px`,
-                  marginBottom: `${offset}px`,
-                  marginRight: `${offset}px`,
+                  margin: `${offset}px`,
                   padding: '10px',
                   borderRadius: '2px',
-                  backgroundColor: VALID_COLOR,
+                  backgroundColor: sunk ? '#de344f' : VALID_COLOR,
                   animation: valid ? 'none' : 'shake 1s linear infinite',
                   transition: 'background-color .1s ease',
                   '@keyframes shake': SHAKE_KEYFRAMES,
@@ -105,9 +124,11 @@ function Ship({
                 <Box sx={({
                   height: `${squareSize}px`,
                   width: `${squareSize}px`,
-                  backgroundColor: '#000',
+                  backgroundColor: getAttackColor(
+                    rowOffset + (vertical ? idx : 0),
+                    colOffset + (vertical ? 0 : idx),
+                  ),
                   margin: 'auto',
-                  opacity: '50%',
                   transition: 'background-color .1s ease',
                 })}
                 />

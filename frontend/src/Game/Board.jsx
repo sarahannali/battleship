@@ -9,7 +9,6 @@ import {
   Grid, Paper, Stack, Typography,
 } from '@mui/material';
 import client from '@urturn/client';
-import Ship from './Ship';
 import {
   AttackTypes, MoveTypes, ships, Status,
 } from '../Helpers/Types';
@@ -18,6 +17,7 @@ import AttackCell from './AttackCell';
 import { usePlayerContext } from '../Contexts/PlayerContext';
 import { EMPTY_BOARD, BOX_SIZE, SHAKE_KEYFRAMES } from '../Helpers/Utils';
 import { useErrorContext } from '../Contexts/ErrorContext';
+import FleetCell from './FleetCell';
 
 function Board({
   opponent,
@@ -27,6 +27,9 @@ function Board({
   } = useGameContext();
   const { player } = usePlayerContext();
   const { setError } = useErrorContext();
+
+  // const getOtherPlayer = () => players && players
+  //   .find((plr) => plr.id !== player.id);
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
   const [ready, setReady] = useState(false);
@@ -48,22 +51,6 @@ function Board({
   }, [player, board]);
 
   const boardSize = localBoard && localBoard.length;
-
-  const isStartPosition = (x, y) => {
-    const shipType = localBoard[x][y];
-
-    return (
-      shipType != null
-      && (
-        (x === 0 || localBoard[x - 1][y] !== shipType)
-        && (y === 0 || localBoard[x][y - 1] !== shipType)
-      ));
-  };
-
-  const getIsVertical = (x, y) => {
-    if (x === localBoard.length - 1) return false;
-    return localBoard[x + 1][y] === localBoard[x][y];
-  };
 
   const updateBoard = (ship, startX, startY, vertical) => {
     const endX = vertical ? startX + ships[ship] - 1 : startX;
@@ -102,6 +89,8 @@ function Board({
 
   const opponentName = players ? players.find((p) => p.id !== player.id).username : 'Opponent';
 
+  console.log(players, ready, status);
+  console.log(!players || (ready && status === Status.PreGame));
   return (
     <div style={{ position: 'relative' }}>
       <Backdrop
@@ -133,8 +122,11 @@ function Board({
             {localBoard.map((row, rowNum) => (
               row.map((cell, colNum) => (
                 <Grid item key={(rowNum, colNum)} sx={{ backgroundColor: rowNum % 2 === 1 && 'rgba(0,0,0,.5)' }}>
-                  <Item sx={{ backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex' }}>
-                    { opponent
+                  <Item sx={{
+                    backgroundColor: colNum % 2 === 1 && 'rgba(0,0,0,.5)', display: 'flex', justifyContent: 'center', alignItems: 'center',
+                  }}
+                  >
+                    {opponent
                       ? (
                         <AttackCell
                           x={rowNum}
@@ -145,19 +137,13 @@ function Board({
                           shakeBoard={shakeBoard}
                         />
                       )
-                      : (isStartPosition(rowNum, colNum)
-                    && (
-                    <Ship
-                      ships={ships}
-                      ship={cell}
-                      board={localBoard}
-                      boxSize={BOX_SIZE}
-                      vertical={getIsVertical(rowNum, colNum)}
-                      rowOffset={rowNum}
-                      colOffset={colNum}
-                      updateBoard={updateBoard}
-                    />
-                    )
+                      : (
+                        <FleetCell
+                          x={rowNum}
+                          y={colNum}
+                          localBoard={localBoard}
+                          updateBoard={updateBoard}
+                        />
                       )}
                   </Item>
                 </Grid>
