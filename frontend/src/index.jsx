@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import { ErrorProvider } from './Contexts/ErrorContext';
-import { GameProvider } from './Contexts/GameContext';
-import { PlayerProvider } from './Contexts/PlayerContext';
+import {
+  GameProvider,
+  PlayerProvider,
+  ErrorProvider,
+} from './Contexts';
 
 ReactDOM.render(
   <React.StrictMode>
