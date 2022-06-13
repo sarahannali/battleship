@@ -1,64 +1,15 @@
 const {
-  getRandomGameState, getEmptyBoard, getEmptyHitCountsObject, ships, isEndGame,
+  getRandomGameState,
+  getEmptyBoard,
+  getEmptyHitCountsObject,
+  isEndGame,
+  getOtherPlayer,
+  validCell,
+  directions,
 } = require('./helpers');
-
-// TicTacToe Example
-const Status = Object.freeze({
-  PreGame: 0,
-  InGame: 1,
-  EndGame: 2,
-});
-
-const MoveTypes = Object.freeze({
-  InitializeBoard: 0,
-  Attack: 1,
-});
-
-const AttackTypes = Object.freeze({
-  None: 0,
-  Miss: 1,
-  Hit: 2,
-  Sunk: 3,
-});
-
-const getOtherPlayer = (players, currentPlayerID) => players
-  .find((plr) => plr.id !== currentPlayerID);
-
-// function getPlrFromMark(mark, plrs) {
-//   return mark === 'X' ? plrs[0] : plrs[1];
-// }
-
-// function isWinningSequence(arr) {
-//   return arr[0] != null && arr[0] === arr[1] && arr[1] === arr[2];
-// }
-
-// function isEndGame(board, plrs) {
-//   // check if there is a winner
-//   for (let i = 0; i < board.length; i += 1) {
-//     const row = board[i];
-//     const col = [board[0][i], board[1][i], board[2][i]];
-
-//     if (isWinningSequence(row)) {
-//       return [true, getPlrFromMark(row[0], plrs)];
-//     } if (isWinningSequence(col)) {
-//       return [true, getPlrFromMark(col[0], plrs)];
-//     }
-//   }
-
-//   const d1 = [board[0][0], board[1][1], board[2][2]];
-//   const d2 = [board[0][2], board[1][1], board[2][0]];
-//   if (isWinningSequence(d1)) {
-//     return [true, getPlrFromMark(d1[0], plrs)];
-//   } if (isWinningSequence(d2)) {
-//     return [true, getPlrFromMark(d2[0], plrs)];
-//   }
-
-//   // check for tie
-//   if (board.some((row) => row.some((mark) => mark === null))) {
-//     return [false, null];
-//   }
-//   return [true, null];
-// }
+const {
+  Status, AttackTypes, MoveTypes, Ships,
+} = require('./types');
 
 /**
  * Generic board game types
@@ -95,7 +46,7 @@ function onRoomStart() {
       hitCounts: {},
       playersReady: 0,
       plrIDToMove: null,
-      winner: null, // null means tie if game is finished, otherwise set to the plr that won
+      winner: null,
     },
   };
 }
@@ -109,10 +60,8 @@ function onRoomStart() {
 function onPlayerJoin(plr, boardGame) {
   const { players, state } = boardGame;
 
-  // VALIDATIONS
-  // check if game has started
   if (state.status !== Status.PreGame) {
-    throw new Error("game has already started, can't join the game!");
+    throw new Error('The game has already started!');
   }
 
   state.board[plr.id] = getRandomGameState();
@@ -152,6 +101,10 @@ function onPlayerMove(plr, move, boardGame) {
   const { moveType } = move;
 
   if (moveType === MoveTypes.InitializeBoard) {
+    if (state.Status === Status.InGame) {
+      throw new Error('The game has already started!');
+    }
+
     const { playerBoard } = move;
     board[plr.id] = playerBoard;
     state.playersReady += 1;
@@ -168,19 +121,15 @@ function onPlayerMove(plr, move, boardGame) {
 
     const sinkShip = (x, y, opponentCell) => {
       if (
-        x >= 0
-        && x < board[plr.id].length
-         && y >= 0
-         && y < board[plr.id][x].length
-          && board[otherPlrID][x][y] === opponentCell
-          && attackBoard[plr.id][x][y] !== AttackTypes.Sunk
+        validCell(x, y, board[plr.id])
+        && board[otherPlrID][x][y] === opponentCell
+        && attackBoard[plr.id][x][y] !== AttackTypes.Sunk
       ) {
         attackBoard[plr.id][x][y] = AttackTypes.Sunk;
 
-        sinkShip(x - 1, y, opponentCell);
-        sinkShip(x + 1, y, opponentCell);
-        sinkShip(x, y - 1, opponentCell);
-        sinkShip(x, y + 1, opponentCell);
+        directions.forEach((direction) => {
+          sinkShip(x + direction[0], y + direction[1], opponentCell);
+        });
       }
     };
 
@@ -195,7 +144,7 @@ function onPlayerMove(plr, move, boardGame) {
     if (opponentCell !== null) {
       hitCounts[plr.id][opponentCell] += 1;
 
-      if (hitCounts[plr.id][opponentCell] === ships[opponentCell]) {
+      if (hitCounts[plr.id][opponentCell] === Ships[opponentCell]) {
         sinkShip(x, y, opponentCell);
       } else {
         attackBoard[plr.id][x][y] = AttackTypes.Hit;
@@ -225,11 +174,18 @@ function onPlayerMove(plr, move, boardGame) {
 function onPlayerQuit(plr, boardGame) {
   const { state, players } = boardGame;
   state.status = Status.EndGame;
+
   if (players.length === 1) {
     const [winner] = players;
     state.winner = winner;
-    return { state, joinable: false, finished: true };
+
+    return {
+      state,
+      joinable: false,
+      finished: true,
+    };
   }
+
   return { joinable: false, finished: true };
 }
 
