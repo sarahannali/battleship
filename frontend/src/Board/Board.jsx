@@ -85,7 +85,7 @@ function Board({ opponent }) {
 
   return (
     <Box style={{ position: 'relative' }}>
-      <LoadingBackdrop open={!players || (ready && status === Status.PreGame)} text="Waiting on other player..." />
+      <LoadingBackdrop open={!players || players.length < 2 || (ready && status === Status.PreGame)} text="Waiting on other player..." />
       <Stack justifyContent="center" alignItems="center" spacing={3}>
         <Typography variant="h5" textAlign="center" color="text.primary">{opponent ? `${opponentName}'s Fleet` : 'Your Fleet' }</Typography>
         <Box
