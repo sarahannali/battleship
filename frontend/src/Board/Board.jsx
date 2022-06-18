@@ -23,15 +23,6 @@ import FleetCell from './FleetCell';
 import useFlash from '../Hooks/useFlash';
 import LoadingBackdrop from '../Common/LoadingBackdrop';
 
-const Item = styled(Paper)(() => ({
-  height: `${BOX_SIZE}px`,
-  width: `${BOX_SIZE}px`,
-  textAlign: 'center',
-  borderRadius: '0',
-  boxSizing: 'border-box',
-  backgroundColor: 'transparent',
-}));
-
 function Board({ opponent }) {
   const {
     board, attackBoard, status, players, getOtherPlayer,
@@ -42,6 +33,15 @@ function Board({ opponent }) {
 
   const [localBoard, setLocalBoard] = useState(EMPTY_BOARD);
   const [ready, setReady] = useState(false);
+
+  const Item = styled(Paper)(() => ({
+    height: `${BOX_SIZE}px`,
+    width: `${BOX_SIZE}px`,
+    textAlign: 'center',
+    borderRadius: '0',
+    boxSizing: 'border-box',
+    backgroundColor: 'transparent',
+  }));
 
   useEffect(() => {
     if (player && board) {
