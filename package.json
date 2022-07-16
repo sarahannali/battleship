@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "runner",
-    "dev": "concurrently \"runner --frontend-url localhost:3000\" \"cd frontend && npm start\"",
+    "dev": "concurrently \"runner\" \"cd frontend && npm start\"",
     "lint": "eslint . --ignore-path .gitignore --ext .js",
     "lint:fix": "eslint . --ignore-path .gitignore --ext .js --fix"
   },
@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/turnbasedgames/tictactoe#readme",
   "dependencies": {
-    "react-draggable": "^4.4.5"
+    "react-draggable": "^4.4.5",
+    "@urturn/runner": "0.0.1-dev7"
   },
   "devDependencies": {
     "concurrently": "^7.1.0",
