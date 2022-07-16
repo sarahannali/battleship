@@ -164,6 +164,7 @@ function onPlayerJoin(plr, boardGame) {
     throw new Error('The game has already started!');
   }
 
+  console.log('PLAAYER: ', plr);
   state.board[plr.id] = getRandomGameState();
   state.attackBoard[plr.id] = getEmptyBoard(AttackTypes.None);
   state.hitCounts[plr.id] = getEmptyHitCountsObject();
